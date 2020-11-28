@@ -3,12 +3,14 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var pgp = require("pg-promise")(/*options*/);
+require('dotenv').config()
 
-var db = pgp("postgres://user:passwd@postgres:5432/db");
+var dbHOST = process.env.dockerDB || process.env.ServerHOST;
+
+var db = pgp(`postgres://user:passwd@${dbHOST}:5432/db`);
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-
 
 var app = express();
 
@@ -20,6 +22,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+
+console.log(dbHOST);
 
 db.one("SELECT * FROM MEMBER")
     .then(function (data) {

@@ -1,6 +1,6 @@
 # 2020Fall  軟體工程專案
 
-新冠肺炎地圖。前端Vue、後端Express、資料庫Postgres、整合Docker-compose、導入Jenskin 做CI/CD (雖然其實沒有測試，但是一鍵部屬、快樂無窮)
+新冠肺炎地圖。前端Vue、後端Express、資料庫Postgres、整合Docker-compose。
 
 ### 編譯
 run the docker-compose 
@@ -9,7 +9,7 @@ run the docker-compose
   ```
 
 * nginx : port 9000:80
-* nodejs: port 6000:3000
+* nodejs: port 4000:3000
 * postgres: port 5432:5432 
 
 進入資料庫
