@@ -21,7 +21,7 @@ services:
       - ./app:/workspace
     restart: always
     environment:
-      dockerDB=postgres
+      dockerDB: postgres
 
   postgres:
     image: postgres

@@ -3,10 +3,14 @@
 新冠肺炎地圖。前端Vue、後端Express、資料庫Postgres、整合Docker-compose。
 
 ### 編譯
-run the docker-compose 
+run the docker-compose
  ```
+ # app整個資料夾映射進內部導致Dockerfiles內部初始化npm install時node_modules無法傳到外部，目前想不到其他解決方案。只能從外部先安裝
+ $ cd ./app & npm install 
+
+ # 編譯 docker-compose 
  $ docker-compose up -d
-  ```
+ ```
 
 * nginx : port 9000:80
 * nodejs: port 4000:3000
