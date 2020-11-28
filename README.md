@@ -14,7 +14,7 @@ run the docker-compose
 
 進入資料庫
 ```bash=
-$ docker exec -it <postgres_containerID>
+$ docker exec -it <postgres_containerID> bash
 
 root:/# psql --username=user --dbname=db
 ```
@@ -23,7 +23,7 @@ root:/# psql --username=user --dbname=db
 
 ###  資料集描述
 * [資料集 rawData](./csvData/csvVisualize.ipynb)
-* [清理完成 Data](./csvData/csvClean.ipynb) 
+* [清理完成 Data](./csvData/CleanData.ipynb) 
 
 ### 資料夾內容
 ```
@@ -32,12 +32,12 @@ software-project
 │   docker-compose.yml
 │
 └───html (前端)
-｜
+│
 └───app (後端 nodejs) 
 │  │   Dockerfile
 │  │   package.json
 │
 └───config 
-      │    nginx.conf (nginx 配置文件)
-      │    init.sql  （資料庫初始化）
+   │   nginx.conf (nginx 配置文件)
+   │   init.sql  （資料庫初始化）
 ```
