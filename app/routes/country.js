@@ -32,7 +32,7 @@ router.get("/getCountry",(req,res)=>{
       let result={
         "success":true,
         "message":"成功查找",
-        "country":data
+        "country":data[0]
       }
       res.send(result);
     })
