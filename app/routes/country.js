@@ -3,7 +3,7 @@ var router = express.Router();
 const DBconnect = require("../DBconnect");
 
 router.get("/getAllCountrys",(req,res)=>{
-  sql = "SELECT * FROM Country";
+  sql = "SELECT * FROM Country WHERE GEO IS NOT NULL AND GEO != 'nan'";
   DBconnect.query(sql)
     .then(data=>{
       let result = {
@@ -37,6 +37,7 @@ router.get("/getCountry",(req,res)=>{
       res.send(result);
     })
     .catch(error=>{
+      console.log(error)
       let result = {
         "success":false,
         "message":"查無此國家名"

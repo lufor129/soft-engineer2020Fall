@@ -18,22 +18,37 @@ router.get("/world",(req,res)=>{
     .then(data=>{
       let sorted_by_date = {}
       data.forEach(element => {
-        let month = element["c_date"].getMonth()
-        let date = element["c_date"].getDate()
-        str_date = (month+1).toString()+"-"+date.toString()
-        
+        // let month = element["c_date"].getMonth()
+        // let date = element["c_date"].getDate()
+        // str_date = (month+1).toString()+"-"+date.toString()
+        str_date = element["c_date"]
         if(str_date in sorted_by_date){
           sorted_by_date[str_date].push(element)
         }else{
           sorted_by_date[str_date] = [element]
         }
       });
+
+      
+
+      let date = []
+      let covid = []
+      for(let date_ in sorted_by_date){
+        date.push(date_)
+        covid.push(sorted_by_date[date_])
+      }
+      
+      result_covid = {
+        "date":date,
+        "covid":covid
+      }
+    
       let result={
         "success":true,
         "message":"成功查找",
-        "total":sorted_by_date.length,
-        "covid":sorted_by_date,
+        "data":result_covid,
       }
+      // console.log(result)
       res.send(result)
     })
     .catch(error=>{
@@ -62,10 +77,11 @@ router.get("/country",(req,res)=>{
     .then(data=>{
       let sorted_by_date = {}
       data.forEach(element => {
-        let month = element["c_date"].getMonth()
-        let date = element["c_date"].getDate()
-        str_date = (month+1).toString()+"-"+date.toString()
+        // let month = element["c_date"].getMonth()
+        // let date = element["c_date"].getDate()
+        // str_date = (month+1).toString()+"-"+date.toString()
         
+        str_date = element["c_date"]
         if(str_date in sorted_by_date){
           sorted_by_date[str_date].push(element)
         }else{
