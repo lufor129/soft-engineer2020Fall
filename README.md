@@ -11,9 +11,6 @@
 ## 編譯
 **run the docker-compose**
  ```
- # app整個資料夾映射進內部導致Dockerfiles內部初始化npm install時node_modules無法傳到外部，目前想不到其他解決方案，只能從外部先安裝。
- $ cd ./app & npm install 
-
  # 編譯 docker-compose 
  $ docker-compose up -d
  ```

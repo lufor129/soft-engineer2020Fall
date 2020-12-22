@@ -1,7 +1,8 @@
 FROM node:8-alpine
 
-COPY . /workspace 
-WORKDIR /workspace
+WORKDIR /usr/src/app
+COPY package*.json ./
 RUN npm install
+COPY . .
 EXPOSE 3000
-CMD cd /workspace && npm start
+CMD npm start
