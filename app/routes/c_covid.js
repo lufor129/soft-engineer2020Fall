@@ -28,9 +28,7 @@ router.get("/world",(req,res)=>{
           sorted_by_date[str_date] = [element]
         }
       });
-
       
-
       let date = []
       let covid = []
       for(let date_ in sorted_by_date){

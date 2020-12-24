@@ -7,9 +7,10 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var authRouter = require("./routes/auth");
 var countrysRouter = require("./routes/country");
+var stateRouter = require("./routes/state");
 var C_covidRouter = require("./routes/c_covid");
-var P_covidRouter = require("./routes/p_covid");
 var bulletinRouter = require("./routes/bulletin");
+var S_covidRouter = require("./routes/s_state");
 
 var app = express();
 
@@ -44,8 +45,9 @@ const authCheck = function(req,res,next){
 
 app.use('/auth',authRouter);
 app.use("/country",countrysRouter);
+app.use("/state",stateRouter);
 app.use("/C_covid",C_covidRouter);
-app.use("/P_covid",P_covidRouter);
 app.use("/bulletin",bulletinRouter);
+app.use("/S_covid",S_covidRouter);
 
 module.exports = app;
