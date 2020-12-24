@@ -9,6 +9,7 @@ var authRouter = require("./routes/auth");
 var countrysRouter = require("./routes/country");
 var C_covidRouter = require("./routes/c_covid");
 var P_covidRouter = require("./routes/p_covid");
+var bulletinRouter = require("./routes/bulletin");
 
 var app = express();
 
@@ -45,5 +46,6 @@ app.use('/auth',authRouter);
 app.use("/country",countrysRouter);
 app.use("/C_covid",C_covidRouter);
 app.use("/P_covid",P_covidRouter);
+app.use("/bulletin",bulletinRouter);
 
 module.exports = app;
