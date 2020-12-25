@@ -71,21 +71,30 @@ router.post("/signup",(req,res)=>{
     });
 });
 
-router.post("/signin",(req,res)=>{
+router.post("/login",(req,res)=>{
   let email = req.body.email;
   let password = req.body.password;
-  sql = "SELECT * FROM MEMBER WHERE ACCOUNT=$1 and PASSWD=$2";
+  sql = "SELECT * FROM MEMBER WHERE ACCOUNT=$1";
 
-  DBconnect.one(sql,[email,password])
+  DBconnect.one(sql,[email])
     .then(data=>{
-      req.session.name = data.name;
-      console.log(data)
-      let result = {
-        "success":true,
-        "message":"登入成功",
-        "username":data.name
+      if(data.length == 0){
+        let result = {
+          "succrss":false,
+          "message":"查不到帳號",
+          "account":data.name
+        }
+        return res.send(result)
+      }else if(data.passwd == password){
+        req.session.name = data.name;
+        console.log(data)
+        let result = {
+          "success":true,
+          "message":"登入成功",
+          "username":data.name
+        }
+        return res.send(result);
       }
-      return res.send(result);
     })
     .catch(error=>{
       let result = {
@@ -95,6 +104,7 @@ router.post("/signin",(req,res)=>{
       return res.send(result);
     });
 });
+
 
 router.post("/forgetPassword",(req,res)=>{
   let email = req.body.email;

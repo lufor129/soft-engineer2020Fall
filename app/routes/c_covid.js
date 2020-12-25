@@ -99,4 +99,8 @@ router.get("/country",(req,res)=>{
     })
 });
 
+router.get("/getCountryChartOne",(req,res)=>{
+
+});
+
 module.exports = router;
