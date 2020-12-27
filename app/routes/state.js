@@ -24,19 +24,18 @@ router.get("/getAllStates",(req,res)=>{
 });
 
 router.get("/getState",(req,res)=>{
-    let country = req.query.country;
+    let state_name = req.query.state_name;
     sql = "SELECT * FROM State WHERE state_NAME=$1";
-    DBconnect.query(sql,[country])
+    DBconnect.one(sql,[state_name])
       .then(data=>{
         let result={
           "success":true,
           "message":"成功查找",
-          "country":data[0]
+          "state_name":data
         }
         res.send(result);
       })
       .catch(error=>{
-        console.log(error)
         let result = {
           "success":false,
           "message":"查無此state名"

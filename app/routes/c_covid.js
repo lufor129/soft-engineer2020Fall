@@ -2,6 +2,13 @@ var express = require("express")
 var router = express.Router()
 const DBconnect = require("../DBconnect");
 
+function transformDate(Date){
+	let year = Date.getFullYear();
+	let mon = Date.getMonth()+1;
+	let d = Date.getDate();
+	return `${year}-${mon}-${d}`
+}
+
 router.get("/world",(req,res)=>{
   let start = req.query.start;
   let end = req.query.end;
@@ -57,7 +64,7 @@ router.get("/world",(req,res)=>{
 router.get("/country",(req,res)=>{
   let start = req.query.start;
   let end = req.query.end;
-  let country = req.query.country;
+  let country_name = req.query.country_name;
   let flag = req.query.flag;
 
   if(flag=='true'){
@@ -71,7 +78,7 @@ router.get("/country",(req,res)=>{
   }
 
 
-  DBconnect.query(sql,[start,end,country])
+  DBconnect.query(sql,[start,end,country_name])
     .then(data=>{
       let sorted_by_date = {}
       data.forEach(element => {

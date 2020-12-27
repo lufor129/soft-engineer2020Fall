@@ -12,6 +12,7 @@
     "express": "~4.16.1",
     "express-session": "^1.17.1",
     "morgan": "~1.9.1",
+    "nodemailer": "^6.4.17",
     "nodemon": "^2.0.6",
     "pg-promise": "^10.8.0",
     "ws": "^7.4.0"

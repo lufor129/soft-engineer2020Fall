@@ -7,7 +7,7 @@ router.post("/addBulletin", (req,res)=>{
     let name = req.body.name;
     let account = req.body.account;
     let country_name = req.body.country_name;
-    let content = req.body.content;
+    let message = req.body.message;
     let time; //YYYY-MM-DD HH:mm:ss
     
     let now = new Date().toISOString();
@@ -15,18 +15,26 @@ router.post("/addBulletin", (req,res)=>{
 
     //console.log(name, account, country_name, content, time);
 
-    sql = "INSERT INTO BULLETIN (ACCOUNT, COUNTRY_NAME, NAME, B_TIME, MESSAGE) VALUES ($1,$2,$3,$4,$5)";
+    sql = "INSERT INTO BULLETIN (ACCOUNT, COUNTRY_NAME, NAME, B_TIME, MESSAGE)\
+                VALUES ($1,$2,$3,$4,$5) RETURNING *";
 
-    DBconnect.query(sql, [account,country_name,name,time,content])
-      .then(data=>{
-        let result={
-              "success":true,
-              "message":"新增留言成功"
+    DBconnect.query(sql, [account,country_name,name,time,message])
+    .then(data=>{
+        if(data.length > 0){
+            let result={
+            "success":true,
+            "message":"新增留言成功"
         }
         res.send(result);  
-      })
+        }else{
+            let result = {
+                "success":false,
+                "message":"新增留言失敗"
+            }
+            res.send(result);
+        }
+    })
       .catch(error=>{
-          console.log(error);
           let result = {
               "success":false,
               "message":"新增留言失敗"
@@ -46,11 +54,7 @@ router.get("/getBulletin", (req, res)=>{
             let result = {
                   "success":true,
                   "message":"成功查找",
-                  "account": data[0],
-                  "country_name": data[1],
-                  "name": data[2],
-                  "time": data[3],
-                  "content": data[4]
+                  "data":data
             }  
             res.send(result);
         } else {
@@ -74,21 +78,29 @@ router.get("/getBulletin", (req, res)=>{
 //刪除留言
 router.delete("/deleteBulletin",(req,res)=>{
     let account = req.query.account;
-    let country = req.query.country;
-    let time = req.query.time;
+    let country_name = req.query.country_name;
+    let b_time = req.query.b_time;
     //console.log(account, country, time);
     
-    sql = "DELETE FROM BULLETIN WHERE ACCOUNT=$1 AND COUNTRY_NAME=$2 AND B_TIME=$3";
-    DBconnect.query(sql, [account,country,time])
+    sql = "DELETE FROM BULLETIN WHERE ACCOUNT=$1 AND COUNTRY_NAME=$2 AND B_TIME=$3 RETURNING *";
+    DBconnect.query(sql, [account,country_name,b_time])
       .then(data=>{
-          let result={
-              "success":true,
-              "meessage":"成功刪除"
+          if(data.length == 0){
+            let result = {
+                "success":false,
+                "message":"Delete Fail, check you PK"
+            }
+            res.send(result)
+          }else{
+            let result = {
+                "success":true,
+                "message":"Delete Success",
+                "data":data[0]
+            }
+            res.send(result);
           }
-          res.send(result);
       })
       .catch(error=>{
-          console.log(error);
           let result = {
               "success":false,
               "message":"刪除失敗"

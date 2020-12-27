@@ -25,9 +25,9 @@ router.get("/getAllCountrys",(req,res)=>{
 
 
 router.get("/getCountry",(req,res)=>{
-  let country = req.query.country;
+  let country = req.query.country_name;
   sql = "SELECT * FROM COUNTRY WHERE COUNTRY_NAME=$1";
-  DBconnect.query(sql,[country])
+  DBconnect.one(sql,[country_name])
     .then(data=>{
       let result={
         "success":true,
@@ -37,7 +37,6 @@ router.get("/getCountry",(req,res)=>{
       res.send(result);
     })
     .catch(error=>{
-      console.log(error)
       let result = {
         "success":false,
         "message":"查無此國家名"

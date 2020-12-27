@@ -57,37 +57,35 @@ router.get("/all_state",(req,res)=>{
 		})
 });
 
-router.post("/addStateCase",(req,res)=>{
-	let country_name = req.body.country_name
-	let state_name = req.body.state_name
-	let s_date = req.body.s_state
-	let confirmed = req.body.confirmed
-	let deaths = req.body.deaths
+router.post("/insertStateCase",(req,res)=>{
+	let i = req.body //insert
 	let sql = "INSERT INTO S_COVID(COUNTRY_NAME,STATE_NAME,S_DATE,CONFIRMED,DEATHS)\
-				VALUES($1,$2,$3,$4,$5)"
+				VALUES($1,$2,$3,$4,$5) RETURNING *"
 
-	if(confirmed==null) confirmed = 0;
-	if(deaths == null) deaths = 0;
+	if(i.confirmed==undefined) i.confirmed = 0;
+	if(i.deaths == undefined) i.deaths = 0;
 
-	DBconnect.query(sql,[country_name,state_name,s_date,confirmed,deaths])
+	DBconnect.query(sql,[i.country_name,i.state_name,i.s_date,i.confirmed,i.deaths])
 		.then(data=>{
 			if(data.length > 0){
+				console.log(data)
 				let result = {
 					"success":true,
-					"message":"insert success"
+					"message":"insert success",
+					"data":data
 				}
 				res.send(result)
 			}else{
 				let result = {
 					"success":false,
-					"message":"insert fail"
+					"message":"insert fail & I dont know why"
 				}
 				res.send(result)
 			}
 		}).catch(error=>{
 			let result = {
 				"success":false,
-				"message":"DB error"
+				"message":"DB error & maybe you use repeat PK"
 			}
 			res.send(result)
 		})
@@ -97,21 +95,27 @@ router.post("/deleteStateCase",(req,res)=>{
 	let state_name = req.body.state_name
 	let date = req.body.date
 
-	console.log(state_name,date)
-
-	let sql = "DELETE FROM S_COVID WHERE state_name=$1 AND s_date=$2"
+	let sql = "DELETE FROM S_COVID \
+				  WHERE state_name=$1 AND s_date=$2 \
+				  RETURNING *"
 	DBconnect.query(sql,[state_name,date])
 		.then(data=>{
 			if(data.length == 0 ){
 				let result = {
+					"success":false,
+					"message":"Delete Fail, check you PK"
+				}
+				res.send(result)
+			}else{
+				let result = {
 					"success":true,
-					"message":"Delete Success"
+					"message":"Delete Success",
+					"data":data[0]
 				}
 				res.send(result)
 			}
 		})
 		.catch(error=>{
-			console.log(error)
 			let result = {
 				"success":false,
 				"message":"DB ERROR"
@@ -120,19 +124,106 @@ router.post("/deleteStateCase",(req,res)=>{
 		})
 })
 
-router.post("/modifyStateCase",(req,res)=>{
+router.post("/updateStateCase",(req,res)=>{
+	let m = req.body; //modifyData
+
+	if(m.confirmed == undefined || m.deaths == undefined){
+		return res.send("格式錯誤")
+	}
+
+	let sql = "UPDATE S_COVID SET CONFIRMED=$1, DEATHS=$2 \
+				WHERE STATE_NAME=$3 AND S_DATE=$4 RETURNING *"
 	
+	DBconnect.query(sql,[m.confirmed,m.deaths,m.state_name,m.s_date])
+		.then(data=>{
+			if(data.length == 0){
+				let result = {
+					"success":false,
+					"message":"update fail, check your PK",
+				}
+				res.send(result)
+			}else{
+				let result = {
+					"success":true,
+					"message":"update success",
+					"data":data
+				}
+				res.send(data)
+			}
+		})
+		.catch(error=>{
+			console.log(error)
+			res.send(error)
+		})
+});
+
+router.get("/getStatePie",(req,res)=>{
+	let state_name = req.query.state_name
+	let sql = "SELECT * FROM S_COVID INNER JOIN STATE \
+					ON S_COVID.state_name=STATE.STATE_name \
+					WHERE STATE.STATE_NAME=$1 order by s_date desc limit 1;"
+	DBconnect.query(sql,[state_name])
+	.then(data=>{
+		// console.log(data,data.length)
+		if(data.length>0){
+			let state = data[0]
+			let columns = ["項目","人數"]
+			let rows1 = [
+				{"項目":"確診人數","人數":state.confirmed-state.deaths},
+				{"項目":"死亡人數","人數":state.deaths}
+			]
+			let rows2 = [
+				{"項目":"確診人數","人數":state.confirmed-state.deaths},
+				{"項目":"死亡人數","人數":state.deaths},
+				{"項目":"未感染人數","人數":state.population-state.confirmed}
+			]
+			let chartData1 = {
+				"columns":columns,
+				"row":rows1,
+			}
+			let chartData2 ={
+				"columns":columns,
+				"row":rows2
+			}
+			let result = {
+				"success":true,
+				"message":state.state_name+" success query",
+				"state_name":state.state_name,
+				"s_date":state.s_date,
+				"state_population":state.population,
+				"chartData1":chartData1,
+				"chartData2":chartData2
+			}
+			console.log(result)
+			return res.send(result)
+		}else{
+			let result={
+				"success":false,
+				"message":"no state error"
+			}
+			res.send(result)
+		}
+	})
+	// .catch(error=>{
+	// 	console.log("error")
+	// 	let result= {
+	// 		"success":false,
+	// 		"message":"DB error",
+	// 		"error":error
+	// 	}
+	// 	res.send(result)
+	// })
 })
 
 router.get("/getStateChartOne",(req,res)=>{
 	let start = req.query.start;
 	let end = req.query.end;
-	let state = req.query.state;
+	let state_name = req.query.state_name;
 
 	let sql = "SELECT * FROM S_COVID \
 		WHERE STATE_NAME=$3 AND S_DATE BETWEEN $1 AND $2"
 	
-	DBconnect.query(sql,[start,end,state])
+	DBconnect.query(sql,[start,end,state_name])
 	.then(data=>{
 		// let sorted_by_date = {}
 		if(data.length == 0){
