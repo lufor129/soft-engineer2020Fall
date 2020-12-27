@@ -9,6 +9,11 @@ function transformDate(Date){
 	return `${year}-${mon}-${d}`
 }
 
+function randomColor(){
+  let color = '#'+Math.floor(Math.random()*16777215).toString(16);
+  return color;
+}
+
 router.get("/world",(req,res)=>{
   let start = req.query.start;
   let end = req.query.end;
@@ -106,8 +111,195 @@ router.get("/country",(req,res)=>{
     })
 });
 
-router.get("/getCountryChartOne",(req,res)=>{
+router.get("/getCountryPie",(req,res)=>{
+  let country_name = req.query.country_name
+  let sql = "SELECT * FROM C_COVID INNER JOIN Country \
+              ON C_COVID.country_name=Country.country_name \
+              WHERE country.country_NAME=$1 order by c_date desc limit 1"
+  	DBconnect.query(sql,[country_name])
+    .then(data=>{
+      if(data.length>0){
+        let country = data[0]
+        let columns = ["項目","人數"]
+        let rows1 = [
+          {"項目":"確診人數","人數":country.confirmed-country.deaths},
+          {"項目":"死亡人數","人數":country.deaths}
+        ]
+        let rows2 = [
+          {"項目":"確診人數","人數":country.confirmed-country.deaths},
+          {"項目":"死亡人數","人數":country.deaths},
+          {"項目":"未感染人數","人數":country.population-country.confirmed}
+        ]
+        let chartData1 = {
+          "columns":columns,
+          "row":rows1,
+        }
+        let chartData2 ={
+          "columns":columns,
+          "row":rows2
+        }
+        let result = {
+          "success":true,
+          "message":country.country_name+" success query",
+          "country_name":country.country_name,
+          "chartType":"Pie",
+          "c_date":country.s_date,
+          "country_population":country.population,
+          "chartData1":chartData1,
+          "chartData2":chartData2
+        }
+        console.log(result)
+        return res.send(result)
+      }else{
+        let result={
+          "success":false,
+          "message":"no country error"
+        }
+        res.send(result)
+      }
+    })
+    .catch(error=>{
+      let result= {
+        "success":false,
+        "message":"DB error",
+        "error":error
+      }
+      res.send(result)
+    })
+})
 
-});
+router.get("/getCountryLine",(req,res)=>{
+	let country_name = req.query.country_name
+
+	let sql = "SELECT * FROM C_COVID WHERE country_NAME=$1 order by C_DATE"
+	DBconnect.query(sql,[country_name])
+	.then(data=>{
+		if(data.length>0){
+			let columns = ["日期","確診人數","死亡人數"]
+			let rows = data.map(element=>{
+				return {
+					"日期": transformDate(element["c_date"]),
+					"確診人數":element.confirmed,
+					"死亡人數":element.deaths
+				}
+			})
+			
+			let chartData = {
+				"columns":columns,
+				"rows":rows
+			}
+
+			let result = {
+				"success":true,
+				"message":country_name+" query success",
+				"country_name":country_name,
+				"chartType":"LieChart",
+				"start":transformDate(data[0].c_date),
+				"end":transformDate(data[data.length-1].c_date),
+				"chartData":chartData
+			}
+			res.send(result)
+		}else{
+			let result = {
+				"success":false,
+				"message":"no query result"
+			}
+			res.send(result)
+		}
+	})
+	.catch(error=>{
+		let result={
+			"success":false,
+      "message":"DB query error",
+      "error":error
+		}
+		res.send(result)
+	})
+})
+
+router.get("/getCountrysLine",(req,res)=>{
+  let account = req.query.account
+  let sql = "SELECT * FROM usercountry WHERE account=$1"
+  DBconnect.query(sql,[account])
+    .then(data=>{
+      if(data.length>0){
+        let columns = ["日期"]
+        let countrys = []
+        data.forEach(element=>{
+          countrys.push(element.country_name)
+        })
+        columns = columns.concat(countrys)
+        var sql2 = "SELECT * FROM usercountry INNER JOIN c_covid \
+                      ON usercountry.country_name=c_covid.country_name \
+                      WHERE usercountry.account=$1 order by c_covid.c_date"
+        DBconnect.query(sql2,[account])
+          .then(sql2Data=>{
+            let start = transformDate(sql2Data[0].c_date)
+            let end = transformDate(sql2Data[sql2Data.length-1].c_date)
+            
+            let tempDate = start
+            let confirmed = []
+            let deaths = []
+            let recovered = []
+            let tempDictConfirmed = {"日期":tempDate}
+            let tempDictDeaths = {"日期":tempDate}
+            let tempDictRecovered = {"日期":tempDate}
+            sql2Data.forEach(element=>{
+              if(transformDate(element.c_date) != tempDate){
+                countrys.forEach(e=>{
+                  if(tempDictConfirmed[e] == undefined){
+                    tempDictConfirmed[e] = 0;
+                    tempDictDeaths[e] = 0;
+                    tempDictRecovered[e] = 0
+                  }
+                })
+                confirmed.push(tempDictConfirmed)
+                deaths.push(tempDictDeaths)
+                recovered.push(tempDictRecovered)
+                
+                tempDate = transformDate(element.c_date)
+                tempDictConfirmed = {"日期":tempDate}
+                tempDictDeaths = {"日期":tempDate}
+                tempDictRecovered = {"日期":tempDate}
+              }
+              // console.log(element.country_name)
+              tempDictConfirmed[element.country_name] = element.confirmed
+              tempDictDeaths[element.country_name] = element.deaths
+              tempDictRecovered[element.country_name] = element.recovered
+            })
+            confirmed.push(tempDictConfirmed)
+            deaths.push(tempDictDeaths)
+            recovered.push(tempDictRecovered)
+            let result = {
+              "success":true,
+              "message":"query success",
+              "country_name":countrys,
+              "chartType":"LieChart",
+              "start":start,
+              "end":end,
+              "columns":columns,
+              "confirmed":confirmed,
+              "deaths":deaths,
+              "recovered":recovered
+            }
+            res.send(result)
+          })
+      }else{
+        let result={
+          "success":false,
+          "message":"user dont have subscribe",
+        }
+        res.send(result)
+      }
+    })
+    .catch(error=>{
+      let result={
+        "success":false,
+        "message":"DB query error",
+        "error":error
+      }
+      res.send(result)
+    })
+})
 
 module.exports = router;

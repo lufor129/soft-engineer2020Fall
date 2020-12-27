@@ -161,7 +161,7 @@ router.get("/getStatePie",(req,res)=>{
 	let state_name = req.query.state_name
 	let sql = "SELECT * FROM S_COVID INNER JOIN STATE \
 					ON S_COVID.state_name=STATE.STATE_name \
-					WHERE STATE.STATE_NAME=$1 order by s_date desc limit 1;"
+					WHERE STATE.STATE_NAME=$1 order by s_date desc limit 1"
 	DBconnect.query(sql,[state_name])
 	.then(data=>{
 		// console.log(data,data.length)
@@ -189,6 +189,7 @@ router.get("/getStatePie",(req,res)=>{
 				"success":true,
 				"message":state.state_name+" success query",
 				"state_name":state.state_name,
+				"chartType":"Pie",
 				"s_date":state.s_date,
 				"state_population":state.population,
 				"chartData1":chartData1,
@@ -204,15 +205,63 @@ router.get("/getStatePie",(req,res)=>{
 			res.send(result)
 		}
 	})
-	// .catch(error=>{
-	// 	console.log("error")
-	// 	let result= {
-	// 		"success":false,
-	// 		"message":"DB error",
-	// 		"error":error
-	// 	}
-	// 	res.send(result)
-	// })
+	.catch(error=>{
+		console.log("error")
+		let result= {
+			"success":false,
+			"message":"DB error",
+			"error":error
+		}
+		res.send(result)
+	})
+})
+
+router.get("/getStateLine",(req,res)=>{
+	let state_name = req.query.state_name
+
+	let sql = "SELECT * FROM S_COVID WHERE STATE_NAME=$1 order by S_DATE"
+	DBconnect.query(sql,[state_name])
+	.then(data=>{
+		if(data.length>0){
+			let columns = ["日期","確診人數","死亡人數"]
+			let rows = data.map(element=>{
+				return {
+					"日期": transformDate(element["s_date"]),
+					"確診人數":element.confirmed,
+					"死亡人數":element.deaths
+				}
+			})
+			
+			let chartData = {
+				"columns":columns,
+				"rows":rows
+			}
+
+			let result = {
+				"success":true,
+				"message":state_name+" query success",
+				"state_name":state_name,
+				"chartType":"LieChart",
+				"start":transformDate(data[0].s_date),
+				"end":transformDate(data[data.length-1].s_date),
+				"chartData":chartData
+			}
+			res.send(result)
+		}else{
+			let result = {
+				"success":false,
+				"message":"no query result"
+			}
+			res.send(result)
+		}
+	})
+	.catch(error=>{
+		let result={
+			"success":false,
+			"message":"DB query error"
+		}
+		res.send(result)
+	})
 })
 
 router.get("/getStateChartOne",(req,res)=>{

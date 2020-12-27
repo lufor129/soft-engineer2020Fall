@@ -45,5 +45,104 @@ router.get("/getCountry",(req,res)=>{
     });
 })
 
+router.get("/getUserCountry",(req,res)=>{
+  let user = req.query.account
+  let sql ="SELECT * FROM usercountry INNER JOIN country \
+            ON usercountry.country_name=country.country_name \
+            WHERE usercountry.account=$1"
+  DBconnect.query(sql,[user])
+    .then(data=>{
+      if(data.length>0){
+        let result = {
+          "success":true,
+          "message":"get User complete",
+          "data":data
+        }
+        res.send(result)
+      }else{
+        let result = {
+          "success":false,
+          "message":"no user favorite",
+        }
+        res.send(result)
+      }
+    })
+    .catch(error=>{
+      let result = {
+        "success":false,
+        "message":"DB error",
+        "error":error
+      }
+      res.send(result)
+    })
+})
+
+router.post("/subscribeCountry",(req,res)=>{
+  let account = req.body.account
+  let country_name = req.body.country_name
+  
+  let sql = "INSERT INTO usercountry(account,country_name) VALUES($1,$2) \
+              RETURNING *"
+  DBconnect.query(sql,[account,country_name])
+    .then(data=>{
+      if(data.length>0){
+        let result = {
+          "success":true,
+          "message":"good",
+          "data":data
+        }
+        res.send(result)
+      }else{
+        let result = {
+          "success":false,
+          "message":"Insert error",
+        }
+        res.send(result)
+      }
+    })
+    .catch(error=>{
+      let result = {
+        "success":false,
+        "message":"DB error",
+        "error":error
+      }
+      res.send(result)
+    })
+})
+
+router.post("/deleteSubscribeCountry",(req,res)=>{
+  let account = req.body.account
+  let country_name = req.body.country_name
+
+  let sql = "DELETE FROM usercountry \
+              WHERE account=$1 AND country_name=$2\
+              RETURNING *"
+  DBconnect.query(sql,[account,country_name])
+    .then(data=>{
+      if(data.length>0){
+        let result = {
+          "success":true,
+          "message":"good",
+          "data":data
+        }
+        res.send(result)
+      }else{
+        let result = {
+          "success":false,
+          "message":"delete error",
+        }
+        res.send(result)
+      }
+    })
+    .catch(error=>{
+      let result = {
+        "success":false,
+        "message":"DB error",
+        "error":error
+      }
+      res.send(result)
+    })
+})
+
 
 module.exports = router;
