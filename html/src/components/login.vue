@@ -36,7 +36,7 @@
   </div>
 </template>
 
-<style>
+<style scoped>
 .login-wrap {
   text-align: center;
   margin-top: 30px;
@@ -137,7 +137,8 @@ export default {
           password: this.newPassword,
           name: this.newUserName,
         };
-        this.$http.post("/register", registerData).then((res) => {
+        console.log(registerData)
+        this.$http.post(`${this.$host}/auth/register`, registerData).then((res) => {
           if (res.data == "success") {
             this.tishi = "註冊成功，請先至信箱收取驗證信";
             this.showTishi = true;
@@ -173,7 +174,7 @@ export default {
         alert("請輸入帳號或密碼");
       } else {
         let userData = { username: this.username, password: this.password };
-        this.$http.post("/login", userData).then((res) => {
+        this.$http.post(`${this.$host}/auth/login`, userData).then((res) => {
           console.log(res.data);
           if (res.data == "wrong") {
             this.tishi = "密碼錯誤";

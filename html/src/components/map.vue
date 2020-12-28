@@ -85,7 +85,7 @@ export default {
                     strokeWe46ight:1
                 }
             });
-            const api = `${host}/country/getAllcountrys`
+            const api = `${this.$host}/country/getAllcountrys`
             this.$http.get(api).then(response => {
                 vm.countrys = response.data.country
                 vm.map.data.addListener("click",function(event){
@@ -94,6 +94,10 @@ export default {
                     vm.makeInfoWindow(vm.GeoclickCountry)
                     vm.infoWindow.setPosition(cooridinate);
                     vm.infoWindow.open(vm.map)
+                    let countryData = vm.countrys.filter(element=>{
+                        return element["geo"] == vm.GeoclickCountry
+                    })[0];
+                    vm.$emit("transmitCountry",countryData.country_name)
                 })
             });
 
@@ -132,7 +136,6 @@ export default {
                 return country["country_name"] == countryData.country_name
             })[0];
             this.infoWindow.setContent(this.infoContent(covid_data,countryData))
-            this.$emit("transmitCountry",countryData.country_name)
         },
         getCovidData(){
             this.value = 0;

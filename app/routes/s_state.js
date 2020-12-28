@@ -179,11 +179,11 @@ router.get("/getStatePie",(req,res)=>{
 			]
 			let chartData1 = {
 				"columns":columns,
-				"row":rows1,
+				"rows":rows1,
 			}
 			let chartData2 ={
 				"columns":columns,
-				"row":rows2
+				"rows":rows2
 			}
 			let result = {
 				"success":true,

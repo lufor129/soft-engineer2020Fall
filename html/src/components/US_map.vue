@@ -90,16 +90,10 @@ export default {
                     vm.makeInfoWindow(vm.GeoclickCountry)
                     vm.infoWindow.setPosition(cooridinate);
                     vm.infoWindow.open(vm.map)
-                    // let countryData = response.data.country.filter(element=>{
-                    //     return element["geo"] == event.feature.getProperty("name")
-                    // })[0];
-                    // let cooridinate = {lat:event.latLng.lat(),lng:event.latLng.lng()};
-                    // let covid_data = vnpmm.worldCovid.covid[vm.value].filter(country=>{
-                    //     return country["country_name"] == countryData.country_name
-                    // })[0];
-                    // vm.infoWindow.setContent(vm.infoContent(covid_data,countryData))
-                    // vm.infoWindow.setPosition(cooridinate);
-                    // vm.infoWindow.open(vm.map)
+                    let countryData = vm.countrys.filter(element=>{
+                        return element["geo"] == vm.GeoclickCountry
+                    })[0];
+                    vm.$emit("transmitCountry",countryData.state_name)
                 })
             });
 
@@ -133,7 +127,6 @@ export default {
                 return country["state_name"] == countryData.state_name
             })[0];
             this.infoWindow.setContent(this.infoContent(covid_data,countryData))
-            this.$emit("transmitCountry",countryData.state_name)
         },
         getCovidData(){
             this.value = 0;
