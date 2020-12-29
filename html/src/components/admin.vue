@@ -477,6 +477,7 @@ export default {
   },
 };
 </script>
+
 <style>
 #caseManger,
 #userManger {

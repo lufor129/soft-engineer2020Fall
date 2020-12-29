@@ -9,14 +9,12 @@
     <div id="mainMean">
       <a style="text-align: center">你目前所訂閱的國家</a>
       <ul v-for="(countryName, index) in userCountrys" :key="index">
-        <!-- <a :class="{active: active===index+1}" @click="scrollTo(index+1)"> -->
         <a @click="showCountry(countryName.country_name)"
           >▹<img
             style="width: 30px; height: 23px"
             :src="$imghost + countryName.flag_url"
           />&ensp;{{ countryName.country_name }}</a
         >
-        <!-- </a> -->
       </ul>
     </div>
     <h1 align="center"></h1>
@@ -34,7 +32,12 @@
     <div v-if="bulletinCountry != ''">
       <div id="grapOne">
         <div id="bulletin">
-          {{ bulletinCountry }}<button @click="subscribeCountry()">訂閱</button>
+                      <img
+              style="width: 30px; height: 23px ;margin-top:8px;"
+              :src="$imghost + countryFlag"
+            />{{ bulletinCountry }}
+          <button style="float:right; margin-top:8px; margin-right:20px" @click="subscribeCountry()">訂閱</button>
+           &ensp;
           <hr />
           <div
             :title="bulletin.b_time"
@@ -45,6 +48,7 @@
               pageStart + countOfPage
             )"
             :key="index"
+          @dblclick="deleteMessage(index)"
           >
             <img
               style="width: 40px; height: 40px; border-radius: 10px"
@@ -59,7 +63,7 @@
                 v-bind:class="{ disabled: currPage === 1 }"
                 @click.prevent="setPage(currPage - 1)"
               >
-                Prev
+                ⇤
               </button>
               <li
                 v-for="n in totalPage"
@@ -67,17 +71,18 @@
                 @click.prevent="setPage(n)"
                 :key="n"
               >
-                <a href="#">{{ n }}</a>
+                <a>{{ n }}</a>&ensp;
               </li>
               <button
                 v-bind:class="{ disabled: currPage === totalPage }"
                 @click.prevent="setPage(currPage + 1)"
               >
-                Next
+                ⇥
               </button>
             </ul>
           </div>
           <input
+          style="width:400px; height:20px; text-align: center;"
             placeholder="說話啊！"
             v-model="newMessages"
             @keypress.enter="newMessage()"
@@ -123,6 +128,7 @@ export default {
       countOfPage: 4,
       currPage: 1,
       newMessages: "",
+      countryFlag:''
     };
   },
   computed: {
@@ -130,7 +136,7 @@ export default {
       return (this.currPage - 1) * this.countOfPage;
     },
     totalPage: function () {
-      return Math.ceil(this.userCountrys.length / this.countOfPage);
+      return Math.ceil(this.bulletinContext.length / this.countOfPage);
     },
   },
   created() {
@@ -143,14 +149,12 @@ export default {
     let getUserCountryApi = `${this.$host}/country/getUserCountry?account=${testName}`;
     this.$http.get(getUserCountryApi).then((res) => {
       this.userCountrys = res.data.data;
-    	console.log(res.data.data)
     });
   },
   mounted() {
-    window.addEventListener("scroll", this.onScroll, false);
-    /* if(this.name == ""){
+    if(this.name == ""){
                 this.$router.push('/')
-            };*/
+            };
   },
   methods: {
     quit() {
@@ -161,59 +165,6 @@ export default {
     toAdmins() {
       this.$router.push("/admin");
     },
-    onScroll() {
-      const navContents = document.querySelectorAll(".content div");
-      const offsetTopArr = [];
-      navContents.forEach((item) => {
-        offsetTopArr.push(item.offsetTop);
-      });
-      const scrollTop =
-        document.documentElement.scrollTop || document.body.scrollTop;
-      let navIndex = 0;
-      for (let n = 0; n < offsetTopArr.length; n++) {
-        if (scrollTop >= offsetTopArr[n]) {
-          navIndex = n;
-        }
-      }
-      this.active = navIndex;
-    },
-    // scrollTo(index) {
-    //     const targetOffsetTop = document.querySelector(`.content div:nth-child(${index + 1})`).offsetTop
-    //     let scrollTop = document.documentElement.scrollTop || document.body.scrollTop
-    //     const step = 50
-    //     if (scrollTop > targetOffsetTop) {
-    //         smoothUp()
-    //     }
-    //     else {
-    //         smoothDown()
-    //     }
-    //     function smoothDown() {
-    //         if (scrollTop < targetOffsetTop) {
-    //             if (targetOffsetTop - scrollTop >= step) {
-    //                 scrollTop += step
-    //             }
-    //             else {
-    //                 scrollTop = targetOffsetTop
-    //             }
-    //             document.body.scrollTop = scrollTop
-    //             document.documentElement.scrollTop = scrollTop
-    //             requestAnimationFrame(smoothDown)
-    //         }
-    //     }
-    //     function smoothUp() {
-    //         if (scrollTop > targetOffsetTop) {
-    //             if (scrollTop - targetOffsetTop >= step) {
-    //                 scrollTop -= step
-    //             }
-    //             else {
-    //                 scrollTop = targetOffsetTop
-    //             }
-    //             document.body.scrollTop = scrollTop
-    //             document.documentElement.scrollTop = scrollTop
-    //             requestAnimationFrame(smoothUp)
-    //         }
-    //     }
-    // },
     testCountryCall(country) {
       console.log(country);
     },
@@ -222,9 +173,10 @@ export default {
     },
     showCountry(countryName) {
       this.bulletinCountry = countryName;
-      let getApi = `${this.$host}/bulletin/getbulletin?country=${countryName}`;
+      let getApi = `${this.$host}/bulletin/getBulletin?country=${countryName}`;
       this.$http.get(getApi).then((res) => {
         this.bulletinContext = res.data.data;
+        this.countryFlag=res.data.country.flag_url;
       });
     },
     newMessage() {
@@ -233,12 +185,13 @@ export default {
         account: "admin",
         country_name: this.bulletinCountry,
         message: this.newMessages,
+        b_time:new Date().toLocaleString()
       };
-      // let postAPI='http://140.127.220.185:4000/bulletin/addBulletin'
-      // this.$http.post(postAPI,JSON.stringify(postData)).then((res)=>{
-      //         console.log(res.data)
-      //         this.newMessages=''
-      //      });
+      let postAPI=`${this.$host}/bulletin/addBulletin`
+      this.$http.post(postAPI,JSON.stringify(postData)).then((res)=>{
+              this.bulletinContext.push(postData)
+              this.newMessages=''
+           });
     },
     setPage: function (idx) {
       if (idx <= 0 || idx > this.totalPage) {
@@ -256,9 +209,19 @@ export default {
         console.log(res.data);
       });
     },
-  },
-  destroy() {
-    window.removeEventListener("scroll", this.onScroll);
+    deleteMessage(index){
+      let postData = {
+        account: "admin",
+        country_name: this.bulletinContext[index].country_name,
+        b_time:this.bulletinContext[index].b_time
+      };
+      if(this.nameIdentity=='admin'){
+        let postAPI = `${this.$host}/bulletin/deleteBulletin`;
+        this.$http.delete(postAPI, JSON.stringify(postData)).then((res) => {
+          console.log(res.data);
+      });
+      }  
+    }
   },
 };
 </script>
@@ -319,16 +282,24 @@ td {
   color: white;
 }
 .active {
-  color: white;
+  color:white;
 }
 
 td {
   color: #2c3e50;
 }
+button{
+  margin: 0 auto;
+  border: none;
+  background-color: #79ae75;
+  color: #fff;
+  font-size: 16px;
+}
 #bulletin {
   background-color: #b3d9d9;
   min-width: 550px;
   border-radius: 10px;
+  height: 105%;
 }
 #bulletinContext {
   text-align: left;

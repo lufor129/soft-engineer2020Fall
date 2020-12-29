@@ -36,13 +36,13 @@
       <div id="mapTab">
         <div
           @click="switchCountryName(true)"
-          style="background-color: #5cadad; border-radius: 6px 6px 0px 0px"
+          style="background-color: #ffffff; border-radius: 6px 6px 0px 0px"
         >
           世界地圖
         </div>
         <div
           @click="switchCountryName(false)"
-          style="background-color: #ffffff; border-radius: 6px 6px 0px 0px"
+          style="background-color:#007979; border-radius: 6px 6px 0px 0px"
         >
           US地圖
         </div>
