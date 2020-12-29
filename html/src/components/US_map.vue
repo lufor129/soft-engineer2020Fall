@@ -19,8 +19,8 @@
         </div>
         <div style="position: relative;left:20%;width: auto;background-color:#007979; border-radius:10px;">
             <div id="mapTab">
-                <div @click="switchCountry(true)" style="background-color:#5CADAD;border-radius:6px 6px 0px 0px;" >tab1</div>
-                <div @click="switchCountry(false)" style="background-color:#FFFFFF; border-radius:6px 6px 0px 0px;" >tab2</div>
+                <div @click="switchCountryName(true)" style="background-color:#5CADAD;border-radius:6px 6px 0px 0px;" >世界地圖</div>
+                <div @click="switchCountryName(false)" style="background-color:#FFFFFF; border-radius:6px 6px 0px 0px;" >US地圖</div>
                 <br>
             </div>
             <br>
@@ -190,7 +190,6 @@ export default {
         },
         infoContent(covid_data,countryData){
             let c_date = this.worldCovid.date[this.value]
-
             if(covid_data == undefined){
                 covid_data = {
                     "confirmed":0,
@@ -271,8 +270,8 @@ export default {
                 }
             });
         },
-        switchCountry(mapN){
-            this.$emit("changeMap",mapN);
+        switchCountryName(mapName){
+            this.$emit("changeMap",mapName);
         }
     },
     created(){

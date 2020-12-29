@@ -112,7 +112,6 @@ router.post("/login",(req,res)=>{
 
   DBconnect.one(sql,[account])
     .then(data=>{
-      console.log(data)
       if(data.length == 0){
         // let result = {
         //   "succrss":false,
@@ -125,7 +124,7 @@ router.post("/login",(req,res)=>{
         if(data.activate == true){
           req.session.name = data.name;
           req.session.account = data.account;
-          if(data.userIdentify == "admin"){
+          if(data.useridentify == "admin"){
             let result = "admin"
             res.send(result)
           }else{
@@ -160,6 +159,7 @@ router.post("/login",(req,res)=>{
       //   "message":"DB error",
       // }
       let result = "wrong"
+      console.log(error)
       return res.send(result);
     });
 });
@@ -228,9 +228,10 @@ router.post("/updateUserName",(req,res)=>{
     })
 })
 
-router.post("/deletelUser",(req,res)=>{
+router.post("/deleteUser",(req,res)=>{
   let user = req.body
   let sql = "DELETE FROM MEMBER WHERE ACCOUNT=$1 RETURNING *"
+  console.log(user)
   DBconnect.one(sql,[user.account])
     .then(data=>{
       // let result = {
@@ -247,6 +248,7 @@ router.post("/deletelUser",(req,res)=>{
       //   "message":"Query error"
       // }
       let result = "error"
+      console.log(error)
       res.send(result)
     })
 })

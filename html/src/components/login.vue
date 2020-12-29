@@ -12,6 +12,7 @@
         placeholder="輸入密碼"
         maxlength="20"
         v-model="password"
+        @keypress.enter="login"
       />
       <button v-on:click="login">登入</button>
       <span v-on:click="ToRegister">註冊</span>
@@ -133,11 +134,10 @@ export default {
         return;
       } else {
         let registerData = {
-          email: this.newUserEmail,
+          account: this.newUserEmail,
           password: this.newPassword,
           name: this.newUserName,
         };
-        console.log(registerData)
         this.$http.post(`${this.$host}/auth/register`, registerData).then((res) => {
           if (res.data == "success") {
             this.tishi = "註冊成功，請先至信箱收取驗證信";
@@ -173,7 +173,7 @@ export default {
       if (this.username == "" || this.password == "") {
         alert("請輸入帳號或密碼");
       } else {
-        let userData = { username: this.username, password: this.password };
+        let userData = { account: this.username, password: this.password };
         this.$http.post(`${this.$host}/auth/login`, userData).then((res) => {
           console.log(res.data);
           if (res.data == "wrong") {
@@ -181,7 +181,7 @@ export default {
             this.showTishi = true;
             this.password = "";
           } else if (res.data == "admin") {
-            this.tishi = "登入成功";
+            this.tishi = "登入成功 ADMIN";
             this.showTishi = true;
             setCookie("username", this.username, 1000 * 60);
             setCookie("userIdentity", "admin", 1000 * 60);

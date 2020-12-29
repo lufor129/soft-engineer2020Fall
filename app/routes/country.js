@@ -89,7 +89,7 @@ router.post("/subscribeCountry",(req,res)=>{
         let result = {
           "success":true,
           "message":"good",
-          "data":data
+          "data":data[0]
         }
         res.send(result)
       }else{
