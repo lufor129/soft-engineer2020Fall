@@ -28,11 +28,11 @@
       <input type="text" placeholder="請輸入電子信箱" v-model="newUserEmail" />
       <input
         type="password"
-        placeholder="請輸入0~20的英數混合字串"
+        placeholder="請輸入1~20的英數混合字串"
         v-model="newPassword"
       />
       <button v-on:click="register">註冊</button>
-      <span v-on:click="ToLogin">已有帳號，按此登入</span>
+      <span v-on:click="ToLogin">如果已有帳號，按此登入</span>
     </div>
   </div>
 </template>

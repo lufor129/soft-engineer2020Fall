@@ -10,6 +10,7 @@
       <a style="text-align: center">你目前所訂閱的國家</a>
       <ul v-for="(countryName, index) in userCountrys" :key="index">
         <a @click="showCountry(countryName.country_name)"
+          @dblclick="deleteSCountry(index)"
           >▹<img
             style="width: 30px; height: 23px"
             :src="$imghost + countryName.flag_url"
@@ -221,6 +222,16 @@ export default {
           console.log(res.data);
       });
       }  
+    },
+    deleteSCountry(index){
+        let postData = {
+        account: "admin",
+        country_name: this.bulletinCountry,
+      };
+      let postAPI = `${this.$host}/country/deleteSubscribeCountry`;
+      this.$http.post(postAPI, JSON.stringify(postData)).then((res) => {
+        console.log(res.data);
+      });
     }
   },
 };
