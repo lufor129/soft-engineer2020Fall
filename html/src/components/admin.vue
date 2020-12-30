@@ -6,12 +6,11 @@
     </div>
     <div id="mainMean">
       <a @click="caseManger">案例管理</a>
-      <li>全世界</li>
-      <li>美國</li>
       <a @click="userManger">使用者管理</a>
     </div>
     <h1 align="center">{{ adminManger }}</h1>
     <div v-if="caseShow" id="caseManger">
+       <a @click="switchCaseCountry()">🔄</a>
       <div id="addCase">
         <img src="../assets/addIcon.png" @click="addCase = !addCase" />
         新增案例<br />
@@ -19,7 +18,8 @@
           <input v-if="addCase" placeholder="時間" v-model="caseTime" />
         </transition>
         <transition name="slide-fade">
-          <input v-if="addCase" placeholder="國家名稱" v-model="caseCountry" />
+          <input v-if="addCase&&switchCaseCountrys" placeholder="國家名稱" v-model="caseCountry" />
+          <input v-if="addCase&&!switchCaseCountrys" placeholder="州郡名稱" v-model="caseState" />
         </transition>
         <transition name="slide-fade">
           <input v-if="addCase" placeholder="恢復人數" v-model="caseRecover" />
@@ -35,12 +35,15 @@
         </transition>
       </div>
       <div id="caseSearch">
-        <input
+          <input
           v-model="countryFilter"
           type="text"
           class="right border"
           placeholder="國家"
         />
+        <img src="../assets/search.png"                 
+          width="20"
+          height="20"> 
       </div>
       <div id="caseView">
         <table>
@@ -228,6 +231,8 @@ export default {
       editCaseR: "",
       editCaseS: "",
       editCaseD: "",
+      switchCaseCountrys:true,
+      caseState:''
     };
   },
   created() {
@@ -338,13 +343,14 @@ export default {
         }
       });
     },
+    //api未串
     updateUserEmail(newEmail, userEmail, index) {
       let postData = {
         newEmail: newEmail,
         userEmail: userEmail,
       };
       this.$http
-        .post("/updateUserEmail", JSON.stringify(postData))
+        .post(`${this.$host}/updateUserEmail`, JSON.stringify(postData))
         .then((res) => {
           if (res.body === "success") {
             this.filteredUserRows[index].email = newEmail;
@@ -432,6 +438,10 @@ export default {
         });
       }
     },
+    switchCaseCountry(){
+      this.switchCaseCountrys=!this.switchCaseCountrys;
+      console.log(this.switchCaseCountrys);
+    }
   },
   computed: {
     selectAll: {
@@ -473,12 +483,52 @@ export default {
         : this.allCaseData.filter(function (d) {
             return d.countryName.toLowerCase().indexOf(countryFilter) > -1;
           });
-    },
+    }
   },
 };
 </script>
 
 <style>
+#mainMean {
+  background-color: #94c5b5;
+  max-height: auto;
+  min-height: 65%;
+  width: 20%;
+  position: absolute;
+  top: auto;
+}
+#mainMean a {
+  border-top: 2px solid rgba(255, 255, 255, 0.08);
+  display: block;
+  padding: 2em 1.5em;
+  text-align: left;
+  text-decoration: none;
+  font-weight: 700;
+  color: #fafafa;
+  margin-left: 15%;
+}
+#mainMean li {
+    margin-left: 20%;
+
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  line-height: 30px;
+}
+
+th,
+td {
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  text-align: center;
+  padding: 10px;
+}
+#account {
+  text-align: center;
+  position: absolute;
+  top: 30px;
+  right: 1%;
+}
 #caseManger,
 #userManger {
   font-family: "Avenir", Helvetica, Arial, sans-serif;
@@ -490,6 +540,7 @@ export default {
   display: inline-block;
   flex-wrap: nowrap;
 }
+
 
 #caseManger input {
   width: auto;

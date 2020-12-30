@@ -90,12 +90,11 @@ router.get("/getBulletin", (req, res) => {
 });
 
 //刪除留言
-router.delete("/deleteBulletin", (req, res) => {
-  let account = req.query.account;
-  let country_name = req.query.country_name;
-  let b_time = req.query.b_time;
-  //console.log(account, country, time);
-
+router.post("/deleteBulletin", (req, res) => {
+  let account = req.body.account;
+  let country_name = req.body.country_name;
+  let b_time = req.body.b_time;
+  
   sql =
     "DELETE FROM BULLETIN WHERE ACCOUNT=$1 AND COUNTRY_NAME=$2 AND B_TIME=$3 RETURNING *";
   DBconnect.query(sql, [account, country_name, b_time])

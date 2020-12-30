@@ -32,8 +32,8 @@
     <div v-if="bulletinCountry != ''">
       <div id="grapOne">
         <div id="bulletin">
-                      <img
-              style="width: 30px; height: 23px ;margin-top:8px;"
+            <img
+              style="width: 30px; height: 23px ;margin-top:8px; margin-left:50px"
               :src="$imghost + countryFlag"
             />{{ bulletinCountry }}
           <button style="float:right; margin-top:8px; margin-right:20px" @click="subscribeCountry()">訂閱</button>
@@ -121,7 +121,7 @@ export default {
       userComputers: "",
       userComputerList: "",
       active: 0,
-      currentState: false,
+      currentState: true,
       userCountrys: "",
       bulletinCountry: "",
       bulletinContext: "",
@@ -299,7 +299,7 @@ button{
   background-color: #b3d9d9;
   min-width: 550px;
   border-radius: 10px;
-  height: 105%;
+  height: 375px;
 }
 #bulletinContext {
   text-align: left;
