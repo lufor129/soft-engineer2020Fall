@@ -16,13 +16,14 @@
           step="1"
           v-model="value"
         />
-        <input type="number" v-model="value" />
+        <!-- <input type="number" v-model="value" /> -->
       </div>
       <select v-model="dataStyle">
         <option selected value="confirmed">確診</option>
         <option value="recovered">康復</option>
         <option value="deaths">死亡</option>
       </select>
+      <h3 v-if="worldCovid != null">  現在是: {{ printDate(new Date(worldCovid.date[value])) }}</h3>
     </div>
     <div
       style="
@@ -125,7 +126,12 @@ export default {
           let countryData = vm.countrys.filter((element) => {
             return element["geo"] == vm.GeoclickCountry;
           })[0];
-          vm.$emit("transmitCountry", countryData.country_name);
+          let d = {
+            "name":countryData.country_name,
+            "fromData":"world",
+            "flag_url":countryData.flag_url
+          }
+          vm.$emit("transmitCountry", d);
         });
       });
 
@@ -152,10 +158,10 @@ export default {
         fillOpacity: 0.35 + percent * 120,
       });
     },
-    printDate(Date) {
-      let year = Date.getFullYear();
-      let mon = Date.getMonth() + 1;
-      let d = Date.getDate();
+    printDate(date) {
+      let year = date.getFullYear();
+      let mon = date.getMonth() + 1;
+      let d = date.getDate();
       return `${year}-${mon}-${d}`;
     },
     makeInfoWindow(GeoName) {
@@ -380,6 +386,12 @@ div.bar input {
 #wrap {
   display: inline-flex;
 }
+
+#wrap h3{
+  margin: 0;
+  margin-left: 5px;
+}
+
 #mapTab {
   display: inline-flex;
   position: absolute;

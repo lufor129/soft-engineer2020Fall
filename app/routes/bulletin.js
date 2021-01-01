@@ -66,7 +66,7 @@ router.get("/getBulletin", (req, res) => {
 							success: false,
 							message: "該國家查無資料",
 							data:[],
-							country:data2[0]
+							country:data2
 						};
 						res.send(result);
 					}
@@ -91,13 +91,14 @@ router.get("/getBulletin", (req, res) => {
 
 //刪除留言
 router.post("/deleteBulletin", (req, res) => {
-  let account = req.body.account;
-  let country_name = req.body.country_name;
-  let b_time = req.body.b_time;
+  // let account = req.body.account;
+  // let country_name = req.body.country_name;
+  // let b_time = req.body.b_time;
+  let b_id = req.body.b_id
   
-  sql =
-    "DELETE FROM BULLETIN WHERE ACCOUNT=$1 AND COUNTRY_NAME=$2 AND B_TIME=$3 RETURNING *";
-  DBconnect.query(sql, [account, country_name, b_time])
+  // sql = "DELETE FROM BULLETIN WHERE ACCOUNT=$1 AND COUNTRY_NAME=$2 AND B_TIME=$3 RETURNING *";
+  let sql = "DELETE FROM BULLETIN WHERE b_id=$1 RETURNING *"
+  DBconnect.query(sql, [b_id])
     .then((data) => {
       if (data.length == 0) {
         let result = {

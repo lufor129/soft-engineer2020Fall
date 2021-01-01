@@ -88,7 +88,7 @@ router.post("/subscribeCountry",(req,res)=>{
       if(data.length>0){
         let result = {
           "success":true,
-          "message":"good",
+          "message":"訂閱成功",
           "data":data[0]
         }
         res.send(result)
@@ -122,7 +122,7 @@ router.post("/deleteSubscribeCountry",(req,res)=>{
       if(data.length>0){
         let result = {
           "success":true,
-          "message":"good",
+          "message":"取消訂閱成功",
           "data":data
         }
         res.send(result)

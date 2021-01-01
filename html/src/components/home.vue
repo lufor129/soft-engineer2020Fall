@@ -21,23 +21,24 @@
     <h1 align="center"></h1>
     <br />
     <mapCovid
-      v-on:transmitCountry="testCountryCall"
+      v-on:transmitCountry="callChart"
       v-on:changeMap="changeName"
       v-if="currentState"
     />
     <mapCovidUS
-      v-on:transmitCountry="testCountryCall"
+      v-on:transmitCountry="callChart"
       v-on:changeMap="changeName"
       v-if="!currentState"
     />
     <div v-if="bulletinCountry != ''">
-      <div id="grapOne">
+      <div id="grapOne" v-if="clickCountry!= null && clickCountry.fromData == 'world'">
         <div id="bulletin">
             <img
               style="width: 30px; height: 23px ;margin-top:8px; margin-left:50px"
               :src="$imghost + countryFlag"
             />{{ bulletinCountry }}
-          <button style="float:right; margin-top:8px; margin-right:20px" @click="subscribeCountry()">訂閱</button>
+          <button v-if="isSubscribe==undefined" style="float:right; margin-top:8px; margin-right:20px" @click="subscribeCountry()">訂閱</button>
+          <button v-else style="float:right; margin-top:8px; margin-right:20px;background-color:red;" @click="deleteSCountry()">不訂閱</button>
            &ensp;
           <hr />
           <div
@@ -58,6 +59,7 @@
             <a>{{ bulletin.name }}：{{ bulletin.message }}</a>
             <p></p>
           </div>
+          <!-- 這裡寫的邏輯蠻強的 -->
           <div id="pagination">
             <ul>
               <button
@@ -78,25 +80,24 @@
                 v-bind:class="{ disabled: currPage === totalPage }"
                 @click.prevent="setPage(currPage + 1)"
               >
-                ⇥
               </button>
             </ul>
           </div>
           <input
-          style="width:400px; height:20px; text-align: center;"
+            style="width:400px; height:20px; text-align: center;"
             placeholder="說話啊！"
             v-model="newMessages"
             @keypress.enter="newMessage()"
           />
         </div>
       </div>
-      <div id="grapPosition">
+      <div v-if="clickCountry"  id="grapPosition">
         &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;
-        <grapPie></grapPie>
+        <grapPie :clickData="clickCountry"></grapPie>
       </div>
       <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-      <div>
-        <grapLine></grapLine>
+      <div v-if="clickCountry">
+        <grapLine :clickData="clickCountry"></grapLine>
       </div>
     </div>
   </div>
@@ -129,7 +130,8 @@ export default {
       countOfPage: 4,
       currPage: 1,
       newMessages: "",
-      countryFlag:''
+      countryFlag:'',
+      clickCountry:null
     };
   },
   computed: {
@@ -139,6 +141,12 @@ export default {
     totalPage: function () {
       return Math.ceil(this.bulletinContext.length / this.countOfPage);
     },
+    isSubscribe:function(){
+      let isSubscribe = this.userCountrys.find(element=>{
+        return element.country_name == this.bulletinCountry
+      })
+      return isSubscribe
+    }
   },
   created() {
     let testName = "admin";
@@ -147,15 +155,12 @@ export default {
     let userAccount = { account: uname };
     this.name = uname;
     this.nameIdentity = userIdentity;
-    let getUserCountryApi = `${this.$host}/country/getUserCountry?account=${testName}`;
-    this.$http.get(getUserCountryApi).then((res) => {
-      this.userCountrys = res.data.data;
-    });
+    this.getUserSubscribeCountry();
   },
   mounted() {
     if(this.name == ""){
-                this.$router.push('/')
-            };
+      this.$router.push('/')
+    };
   },
   methods: {
     quit() {
@@ -166,18 +171,39 @@ export default {
     toAdmins() {
       this.$router.push("/admin");
     },
-    testCountryCall(country) {
-      console.log(country);
+    callChart(clickCountry) {
+      this.bulletinCountry = clickCountry.name;
+      this.clickCountry = clickCountry;
+      this.countryFlag = clickCountry.flag_url;
+
+      if(clickCountry.fromData == "world"){
+        this.callBulletin(clickCountry.name)
+      }
+      // this.showCountry(clickCountry.name)
     },
     changeName(forTest) {
       this.currentState = forTest;
     },
+    callBulletin(countryName){
+      let getApi = `${this.$host}/bulletin/getBulletin?country=${countryName}`;
+      this.$http.get(getApi).then((res) => {
+        this.bulletinContext = res.data.data;
+        // console.log(this.bulletinContext)
+      });
+    },
+    // 這裡邏輯我寫的有點混亂
     showCountry(countryName) {
       this.bulletinCountry = countryName;
       let getApi = `${this.$host}/bulletin/getBulletin?country=${countryName}`;
       this.$http.get(getApi).then((res) => {
         this.bulletinContext = res.data.data;
         this.countryFlag=res.data.country.flag_url;
+        this.clickCountry = {
+          "name":res.data.country.country_name,
+          "fromData":"world",
+          "flag_url":res.data.country.flag_url
+        }
+        this.callChart(this.clickCountry)
       });
     },
     newMessage() {
@@ -200,26 +226,41 @@ export default {
       }
       this.currPage = idx;
     },
+    getUserSubscribeCountry(){
+      let uname = getCookie("username");
+      let getUserCountryApi = `${this.$host}/country/getUserCountry?account=${uname}`;
+      this.$http.get(getUserCountryApi).then((res) => {
+        this.userCountrys = res.data.data;
+      });
+    },
     subscribeCountry() {
       let postData = {
-        account: "admin",
+        account: getCookie("username"),
         country_name: this.bulletinCountry,
       };
-      let postAPI = `${this.$host}/country/subscribeCountry`;
-      this.$http.post(postAPI, JSON.stringify(postData)).then((res) => {
-        console.log(res.data);
-      });
+      let isSubscribe = this.userCountrys.find(element=>{
+        return element.country_name == this.bulletinCountry
+      })
+      if(isSubscribe){
+        this.deleteSCountry()
+      }else{
+        let postAPI = `${this.$host}/country/subscribeCountry`;
+        this.$http.post(postAPI, JSON.stringify(postData)).then((res) => {
+          this.getUserSubscribeCountry()
+        });
+      }
     },
     deleteMessage(index){
       let postData = {
-        account: "admin",
-        country_name: this.bulletinContext[index].country_name,
-        b_time:this.bulletinContext[index].b_time
+        // account: "admin",
+        // country_name: this.bulletinContext[index].country_name,
+        // b_time:this.bulletinContext[index].b_time,
+        b_id:this.bulletinContext[index].b_id
       };
       if(this.nameIdentity=='admin'){
         let postAPI = `${this.$host}/bulletin/deleteBulletin`;
-        this.$http.delete(postAPI, JSON.stringify(postData)).then((res) => {
-          console.log(res.data);
+        this.$http.post(postAPI, JSON.stringify(postData)).then((res) => {
+          this.callBulletin(this.clickCountry.name)
       });
       }  
     },
@@ -230,7 +271,7 @@ export default {
       };
       let postAPI = `${this.$host}/country/deleteSubscribeCountry`;
       this.$http.post(postAPI, JSON.stringify(postData)).then((res) => {
-        console.log(res.data);
+        this.getUserSubscribeCountry();
       });
     }
   },
@@ -299,7 +340,7 @@ td {
 td {
   color: #2c3e50;
 }
-button{
+#bulletin button{
   margin: 0 auto;
   border: none;
   background-color: #79ae75;

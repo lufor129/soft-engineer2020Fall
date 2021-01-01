@@ -9,6 +9,9 @@
 <script>
 import VePie from "v-charts/lib/pie.common";
 export default {
+  props:[
+    "clickData"
+  ],
   data(){
     this.chartGrid = {
       width: "100%",
@@ -31,14 +34,28 @@ export default {
   components: {
     VePie,
   },
-  created() {
-    let state_name = "Ohio";
-    let api = `${this.$host}/S_covid/getStatePie?state_name=${state_name}`;
-    let vm = this;
-    this.$http.get(api).then((response) => {
-      vm.chartData = response.data.chartData2;
-    });
+  methods:{
+    createPie(name,fromData){
+      console.log(name)
+      if(fromData == "world"){
+        var api = `${this.$host}/C_covid/getCountryPie?country_name=${name}`
+      }else{
+        var api = `${this.$host}/S_covid/getStatePie?state_name=${name}`
+      }
+      let vm = this;
+      this.$http.get(api).then((response) => {
+        vm.chartData = response.data.chartData1;
+      });
+    }
   },
+  created() {
+    this.createPie(this.clickData.name,this.clickData.fromData)
+  },
+  watch:{
+    clickData:function(){
+      this.createPie(this.clickData.name,this.clickData.fromData)
+    }
+  }
 };
 </script>
 

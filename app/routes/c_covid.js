@@ -143,7 +143,7 @@ router.get("/getCountryPie",(req,res)=>{
           "message":country.country_name+" success query",
           "country_name":country.country_name,
           "chartType":"Pie",
-          "c_date":country.s_date,
+          "c_date":country.c_date,
           "country_population":country.population,
           "chartData1":chartData1,
           "chartData2":chartData2

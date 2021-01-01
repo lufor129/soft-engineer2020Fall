@@ -10,12 +10,13 @@
         <div id="wrap">
             <div class="wrapper">
                 <input type="range" min=0 :max="worldCovid==null?2:worldCovid.date.length-1" step="1" v-model="value" > 
-                <input type="number" v-model="value"/>
+                <!-- <input type="number" v-model="value"/> -->
             </div>
             <select v-model="dataStyle">
                 <option selected value="confirmed">確診</option>
                 <option value="deaths">死亡</option>
             </select>
+            <h3 v-if="worldCovid != null">  現在是: {{ printDate(new Date(worldCovid.date[value])) }}</h3>
         </div>
         <div style="position: relative;left:20%;width: auto;background-color:#007979; border-radius:10px;">
             <div id="mapTab">
@@ -93,7 +94,13 @@ export default {
                     let countryData = vm.countrys.filter(element=>{
                         return element["geo"] == vm.GeoclickCountry
                     })[0];
-                    vm.$emit("transmitCountry",countryData.state_name)
+                    let d = {
+                        "name":countryData.state_name,
+                        "fromData":"state",
+                        "flag_url":countryData.flag_url
+                    }
+                    vm.$emit("transmitCountry", d);
+                    // vm.$emit("transmitCountry",countryData.state_name)
                 })
             });
 
@@ -113,11 +120,11 @@ export default {
             // this.map.data.revertStyle(feature)
             this.map.data.overrideStyle(feature,{fillColor:color,fillOpacity:0.35+percent*120})
         },
-        printDate(Date){
-            let year = Date.getFullYear();
-            let mon = Date.getMonth()+1;
-            let d = Date.getDate();
-            return `${year}-${mon}-${d}`
+        printDate(date) {
+            let year = date.getFullYear();
+            let mon = date.getMonth() + 1;
+            let d = date.getDate();
+            return `${year}-${mon}-${d}`;
         },
         makeInfoWindow(GeoName){
             let countryData = this.countrys.filter(element=>{
@@ -318,6 +325,12 @@ div.bar input{
     width: 95%;
     margin-bottom: 8px;
 }
+
+#wrap h3{
+  margin: 0;
+  margin-left: 5px;
+}
+
 #wrap{
 	display: inline-flex;
 }
