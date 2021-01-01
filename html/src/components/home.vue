@@ -80,6 +80,7 @@
                 v-bind:class="{ disabled: currPage === totalPage }"
                 @click.prevent="setPage(currPage + 1)"
               >
+              ->
               </button>
             </ul>
           </div>
@@ -99,6 +100,9 @@
       <div v-if="clickCountry">
         <grapLine :clickData="clickCountry"></grapLine>
       </div>
+    </div>
+    <div v-if="userCountrys.length!=0">
+      <grapLine :subscribes="userCountrys.length" :name="name"></grapLine>
     </div>
   </div>
 </template>
@@ -124,7 +128,7 @@ export default {
       userComputerList: "",
       active: 0,
       currentState: true,
-      userCountrys: "",
+      userCountrys: [],
       bulletinCountry: "",
       bulletinContext: "",
       countOfPage: 4,

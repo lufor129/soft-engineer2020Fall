@@ -1,18 +1,18 @@
 <template>
   <div class="app-chart">
     <div id="grapLines">
+      <h3 v-if="name != undefined">All Subscribe: {{dataStyle}}</h3>
+      <select v-if="name != undefined" v-model="dataStyle">
+        <option selected value="confirmed">確診</option>
+        <option value="recovered">康復</option>
+        <option value="deaths">死亡</option>
+      </select>
       <ve-line
         :data="chartData"
         :grid="chartGrid"
         :extend="chartExtend"
         legend-visible:false
       ></ve-line>
-      <!-- <ve-line
-        :data="chartData"
-        :grid="chartGrid"
-        :extend="chartExtend"
-        legend-visible:false
-      ></ve-line> -->
     </div>
   </div>
 </template>
@@ -20,7 +20,9 @@
 import VeLine from "v-charts/lib/line.common";
 export default {
   props:[
-    "clickData"
+    "clickData",
+    "name",
+    "subscribes"
   ],
   data: function () {
     (this.chartExtend = {
@@ -34,6 +36,8 @@ export default {
         left: "25%",
       });
     return {
+      dataStyle:"confirmed",
+      responseData:null,
       chartData: {
         columns: ["日期", "訪問用戶", "下單用戶", "下單率"],
         rows: [
@@ -52,7 +56,6 @@ export default {
   },
   methods:{
     createLine(name,fromData){
-      console.log(name)
       if(fromData == "world"){
         var api = `${this.$host}/C_covid/getCountryLine?country_name=${name}`
       }else{
@@ -63,16 +66,40 @@ export default {
         vm.chartData = response.data.chartData;
       });
     },
-    createSubscribeLine(){
-      
-    }
+    createSubscribeLine(user){
+      console.log(this.subscribes)
+      let vm = this;
+      let api = `${this.$host}/C_covid/getCountrysLine?account=${user}`
+      this.$http.get(api).then(response=>{
+        vm.responseData = response.data
+        let chartData = {
+          columns:vm.responseData.columns,
+          rows:vm.responseData[vm.dataStyle]
+        }
+        vm.chartData = chartData
+      })
+    },
   },
   created() {
-    this.createLine(this.clickData.name,this.clickData.fromData)
+    if(this.name != undefined){
+      this.createSubscribeLine(this.name)
+    }else{
+      this.createLine(this.clickData.name,this.clickData.fromData)
+    }
   },
   watch:{
     clickData:function(){
       this.createLine(this.clickData.name,this.clickData.fromData)
+    },
+    subscribes:function(){
+      this.createSubscribeLine(this.name)
+    },
+    dataStyle:function(){
+      let chartData = {
+        columns:this.responseData.columns,
+        rows:this.responseData[this.dataStyle]
+      }
+      this.chartData = chartData
     }
   }
 };

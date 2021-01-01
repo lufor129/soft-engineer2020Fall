@@ -4,7 +4,7 @@
             <span>開始</span>
             <input id="date" value="2020-02-03" v-model="start" type="date">
             <span>結束</span>
-            <input id="date" value="2020-02-04" v-model="end" type="date">
+            <input id="date" value="2020-02-04" v-model="end" :min="start" type="date">
             <button @click="getCovidData">確認</button>
         </div>
         <div id="wrap">

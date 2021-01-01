@@ -66,6 +66,12 @@ router.post("/register",(req,res)=>{
   }else{
     name = account;
   }
+  
+  let PasswordReg = /^\w+$/
+  if(PasswordReg.test(password)==false){
+    let result = "密碼僅可為英文、數字"
+    return res.send(result)
+  }
 
   console.log(name,accountRule.test(account))
 

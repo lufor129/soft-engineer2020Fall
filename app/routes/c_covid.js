@@ -225,8 +225,10 @@ router.get("/getCountrysLine",(req,res)=>{
       if(data.length>0){
         let columns = ["日期"]
         let countrys = []
+        let colors = []
         data.forEach(element=>{
           countrys.push(element.country_name)
+          colors.push(randomColor())
         })
         columns = columns.concat(countrys)
         var sql2 = "SELECT * FROM usercountry INNER JOIN c_covid \
@@ -277,6 +279,7 @@ router.get("/getCountrysLine",(req,res)=>{
               "chartType":"LieChart",
               "start":start,
               "end":end,
+              "colors":colors,
               "columns":columns,
               "confirmed":confirmed,
               "deaths":deaths,
