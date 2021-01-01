@@ -28,7 +28,8 @@
       <input type="text" placeholder="請輸入電子信箱" v-model="newUserEmail" />
       <input
         type="password"
-        placeholder="請輸入1~20的英數混合字串"
+        placeholder="請輸入0~20的英數混合字串"
+        maxlength="20"
         v-model="newPassword"
       />
       <button v-on:click="register">註冊</button>
@@ -160,8 +161,8 @@ export default {
             this.showTishi = true;
             this.newUsername = "";
             this.newPassword = "";
-          } else if (res.data == "databaseError") {
-            this.tishi = "伺服器忙碌中，請稍後再試或聯絡資訊人員";
+          } else {
+            this.tishi = res.data
             this.showTishi = true;
             this.newUsername = "";
             this.newPassword = "";
