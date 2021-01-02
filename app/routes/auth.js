@@ -207,23 +207,29 @@ router.post("/updateUserName",(req,res)=>{
   let sql = "UPDATE MEMBER SET \
               passwd=$2,name=$3,activate=$4,useridentify=$5 \
               WHERE account=$1 RETURNING *"
-    
+  console.log(u)
   DBconnect.query(sql,[u.account,u.passwd,u.name,u.activate,u.useridentify])
     .then(data=>{
-      if(data.lenght >0){
-        let result = {
-          "success":true,
-          "message":"update success",
-          "user":data
-        }
-        res.send(result)
-      }else{
-        let result = {
-          "success":false,
-          "message":"PK error",
-        }
-        res.send(result)
+      // if(data.lenght >0){
+      //   let result = {
+      //     "success":true,
+      //     "message":"update success",
+      //     "user":data
+      //   }
+      //   res.send(result)
+      // }else{
+      //   let result = {
+      //     "success":false,
+      //     "message":"PK error",
+      //   }
+      //   res.send(result)
+      // }
+      let result = {
+        "success":true,
+        "message":"update success",
+        "user":data[0]
       }
+      res.send(result)
     })
     .catch(error=>{
       let result = {
@@ -237,8 +243,7 @@ router.post("/updateUserName",(req,res)=>{
 router.post("/deleteUser",(req,res)=>{
   let user = req.body
   let sql = "DELETE FROM MEMBER WHERE ACCOUNT=$1 RETURNING *"
-  console.log(user)
-  DBconnect.one(sql,[user.account])
+  DBconnect.query(sql,[user.account])
     .then(data=>{
       // let result = {
       //   "success":true,

@@ -282,7 +282,7 @@ export default {
         }
     },
     created(){
-        this.getCovidData()
+        this.getCovidData();
     },
     watch:{
         value:function(){

@@ -10,7 +10,7 @@ router.get("/getAllStates",(req,res)=>{
             "success":true,
             "message":"所有state",
             "total":data.length,
-            "country":data
+            "state":data
         }
         res.send(result);
         })

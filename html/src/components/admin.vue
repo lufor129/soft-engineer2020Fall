@@ -15,36 +15,53 @@
         <img src="../assets/addIcon.png" @click="addCase = !addCase" />
         新增案例<br />
         <transition name="slide-fade">
-          <input v-if="addCase" placeholder="時間" v-model="caseTime" />
+          <input id="date" v-if="addCase" value="2020-02-08" v-model="tempAddCase.c_date" type="date" />
         </transition>
         <transition name="slide-fade">
-          <input v-if="addCase&&switchCaseCountrys" placeholder="國家名稱" v-model="caseCountry" />
+          <form style="display:inline;" v-if="addCase&&switchCaseCountrys">
+            <input list="countrys" placeholder="國家名稱" v-model="tempAddCase.country_name" />
+            <datalist id="countrys">
+              <option :key="index" v-for="(country,index) in allCountrys" :value="country.country_name" />
+            </datalist>
+          </form>
+          <!-- 有bug但先不修 -->
+          <form style="display:inline;" v-if="addCase&&!switchCaseCountrys">
+            <input list="states" placeholder="州郡名稱" v-model="tempAddCase.country_name" />
+            <datalist id="states">
+              <option :key="index" v-for="(state,index) in allStates" :value="state.state_name" />
+            </datalist>
+          </form>
           <input v-if="addCase&&!switchCaseCountrys" placeholder="州郡名稱" v-model="caseState" />
         </transition>
         <transition name="slide-fade">
-          <input v-if="addCase" placeholder="恢復人數" v-model="caseRecover" />
+          <input v-if="addCase" type="number" placeholder="恢復人數" v-model="tempAddCase.recovered" />
         </transition>
         <transition name="slide-fade">
-          <input v-if="addCase" placeholder="死亡人數" v-model="caseDead" />
+          <input v-if="addCase" type="number" placeholder="死亡人數" v-model="tempAddCase.deaths" />
         </transition>
         <transition name="slide-fade">
-          <input v-if="addCase" placeholder="確診人數" v-model="caseSick" />
+          <input v-if="addCase" type="number" placeholder="確診人數" v-model="tempAddCase.confirmed" />
         </transition>
         <transition name="slide-fade">
           <img v-if="addCase" src="../assets/finish.png" @click="addCaseData" />
         </transition>
       </div>
       <div id="caseSearch">
-          <input
-          v-model="countryFilter"
-          type="text"
-          class="right border"
-          placeholder="國家"
-        />
+        <form style="display:inline;">
+          <input list="countrys" class="right border" placeholder="國家名稱" type="text" v-model="countryFilter" />
+          <datalist id="countrys">
+            <option :key="index" v-for="(country,index) in allCountrys" :value="country.country_name" />
+          </datalist>
+        </form>
         <img src="../assets/search.png"                 
           width="20"
           height="20"> 
       </div>
+      <span>開始</span>
+      <input id="date" value="2020-02-03" v-model="start" type="date" />
+      <span>結束</span>
+      <input id="date" value="2020-02-04" v-model="end" :min="start" type="date" />
+      <button @click="getAllCaseData">確認</button>
       <div id="caseView">
         <table>
           <tr>
@@ -67,36 +84,36 @@
               />&ensp;
             </th>
           </tr>
-          <tr :key="caseData" v-for="(caseData, index) in filteredCaseRows">
-            <th>{{ caseData.countryName }}</th>
+          <tr :key="index" v-for="(caseData, index) in filteredCaseRows">
+            <th>{{ caseData.country_name }}</th>
             <th>
               <input
                 v-if="index == editItem"
-                :placeholder="caseData.recover"
+                :placeholder="caseData.recovered"
                 type="number"
                 v-model="editCaseR"
               />
-              <a v-else>{{ caseData.recover }}</a>
+              <a v-else>{{ caseData.recovered }}</a>
             </th>
             <th>
               <input
                 v-if="index == editItem"
-                :placeholder="caseData.sick"
+                :placeholder="caseData.confirmed"
                 type="number"
-                v-model="editCaseS"
+                v-model="editCaseC"
               />
-              <a v-else>{{ caseData.sick }}</a>
+              <a v-else>{{ caseData.confirmed }}</a>
             </th>
             <th>
               <input
                 v-if="index == editItem"
-                :placeholder="caseData.dead"
+                :placeholder="caseData.deaths"
                 type="number"
                 v-model="editCaseD"
               />
-              <a v-else>{{ caseData.dead }}</a>
+              <a v-else>{{ caseData.deaths }}</a>
             </th>
-            <th>{{ caseData.time }}</th>
+            <th>{{ printDate(caseData.c_date) }}</th>
             <th>
               <img
                 v-if="index == editItem"
@@ -105,7 +122,7 @@
               />
               <img
                 v-if="editCaseShow"
-                @click="editCase(index)"
+                @click="editCase(index,caseData)"
                 src="../assets/editIcon.png"
                 width="20"
                 height="20"
@@ -148,7 +165,7 @@
               />&ensp;
             </th>
           </tr>
-          <tr :key="userData" v-for="(userData, index) in filteredUserRows">
+          <tr :key="index" v-for="(userData, index) in filteredUserRows">
             <input
               v-if="userData.account == editUserEmail"
               :placeholder="userData.email"
@@ -164,12 +181,12 @@
               :placeholder="userData.name"
               v-model="newName"
               type="text"
-              @keypress.enter="leftEditName(index)"
+              @keypress.enter="updateUserName(userData,index)"
             />
             <th v-else @click="intoEditName(index)">{{ userData.name }}</th>
             <th>
               <!--不能v-model 因為每列不一樣 and onchange不會觸發-->
-              <select @onchange="editUserIdentity()">
+              <select @change="editUserIdentity(userData,$event,index)">
                 <option selected :value="userData.useridentify">
                   {{ userData.useridentify }}
                 </option>
@@ -205,11 +222,20 @@ export default {
     return {
       name: "",
       adminManger: "案例管理",
-      caseTime: "",
-      caseCountry: "",
-      caseRecover: "",
-      caseDead: "",
-      caseSick: "",
+      allCountrys:null,
+      allStates:null,
+      tempAddCase:{
+        c_date:"2020-02-03",
+        country_name:null,
+        confirmed:null,
+        deaths:null,
+        recovered:null
+      },
+      // caseTime: "",
+      // caseCountry: "",
+      // caseRecover: "",
+      // caseDead: "",
+      // caseSick: "",
       addCase: false,
       caseShow: true,
       editCaseShow: false,
@@ -227,12 +253,13 @@ export default {
       userIdentityFilter: "",
       countryFilter: "",
       editItem: -1,
-      editUserIdentity: "",
-      editCaseR: "",
-      editCaseS: "",
-      editCaseD: "",
+      editCaseR: null,
+      editCaseC: null,
+      editCaseD: null,
       switchCaseCountrys:true,
-      caseState:''
+      caseState:'',
+      start:"2020-02-03",
+      end:"2020-02-04"
     };
   },
   created() {
@@ -243,6 +270,8 @@ export default {
     this.nameIdentity = userIdentity;
     this.getAllCaseData();
     this.getAllUserData();
+    this.getAllCountrys();
+    this.getAllStates();
   },
   mounted() {
     if (this.name == "") {
@@ -250,6 +279,25 @@ export default {
     }
   },
   methods: {
+    getAllCountrys(){
+      let api = `${this.$host}/country/getAllCountrys`
+      this.$http.get(api).then(response=>{
+        this.allCountrys = response.data.country
+      })
+    },
+    getAllStates(){
+      let api = `${this.$host}/state/getAllStates`
+      this.$http.get(api).then(response=>{
+        this.aallStates = response.data.state
+      })
+    },
+    printDate(date) {
+      date = new Date(date)
+      let year = date.getFullYear();
+      let mon = date.getMonth() + 1;
+      let d = date.getDate();
+      return `${year}-${mon}-${d}`;
+    },
     quit() {
       delCookie("username");
       delCookie("userIdentity");
@@ -296,29 +344,38 @@ export default {
     },
     addCaseData() {
       if (
-        this.caseTime == "" ||
-        this.caseCountry == "" ||
-        this.caseRecover == "" ||
-        this.caseDead == "" ||
-        this.caseSick == ""
+        this.tempAddCase.c_date == null ||
+        this.tempAddCase.country_name == null ||
+        this.tempAddCase.recovered == null ||
+        this.tempAddCase.deaths == null ||
+        this.tempAddCase.confirmed == null
       ) {
         alert("請填入新增資料，無請補零");
       } else {
-        let addCaseData = {
-          addCaseCountry: this.caseCountry,
-          addCaseRecover: this.caseRecover,
-          addCaseSick: this.caseSick,
-          addCaseDead: this.caseDead,
-          addCaseTime: this.caseTime,
-        };
-        this.$http.post("/addCase", JSON.stringify(addCaseData)).then((res) => {
-          if (res.body === "success") {
-            alert("good");
-            this.caseTime = "";
-            this.caseCountry = "";
-            this.caseRecover = "";
-            this.caseDead = "";
-            this.caseSick = "";
+        // let addCaseData = {
+        //   addCaseCountry: this.caseCountry,
+        //   addCaseRecover: this.caseRecover,
+        //   addCaseSick: this.caseSick,
+        //   addCaseDead: this.caseDead,
+        //   addCaseTime: this.caseTime,
+        // };
+        let api = `${this.$host}/C_covid/addCountryCase`
+        this.$http.post(api, JSON.stringify(this.tempAddCase)).then((res) => {
+          if (res.data.success) {
+            alert("新增成功 "+res.data.data.country_name);
+            this.tempAddCase = {
+              c_date:"2020-02-03",
+              country_name:null,
+              confirmed:null,
+              deaths:null,
+              recovered:null
+            }
+            this.getAllCaseData()
+            // this.caseTime = "";
+            // this.caseCountry = "";
+            // this.caseRecover = "";
+            // this.caseDead = "";
+            // this.caseSick = "";
           } else {
             alert("資料庫錯誤，請稍後再試");
           }
@@ -334,12 +391,14 @@ export default {
         }
       });
     },
-    getAllCaseData() {
-      this.$http.get(`${this.$host}/S_covid/getAllCaseData`).then((res) => {
-        if (res.data == "error") {
-          alert("抓取資料庫資料錯誤");
-        } else {
-          this.allCaseData = res.data;
+    getAllCaseData() { 
+      let start = ''
+      let end = ''
+      let api = `${this.$host}/C_covid/allCountryData?start=${this.start}&end=${this.end}`
+      this.$http.get(api).then((res) => {
+        if(res.data.success){
+          console.log(res.data)
+          this.allCaseData = res.data.data
         }
       });
     },
@@ -360,17 +419,17 @@ export default {
           }
         });
     },
-    updateUserName(newName, userEmail, index) {
-      let postData = {
-        newName: newName,
-        userEmail: userEmail,
-      };
-      this.$http
-        .post("/updateUserName", JSON.stringify(postData))
+    updateUserName(originData,index) {
+      let postData = originData
+      postData["name"] = this.newName
+      let vm = this;
+      this.$http.post(`${this.$host}/auth/updateUserName`, JSON.stringify(postData))
         .then((res) => {
-          if (res.body === "success") {
-            this.filteredUserRows[index].name = newName;
+          console.log(res.data)
+          if (res.data.success) {
+            this.filteredUserRows[index].name = vm.newName;
             this.newName = "";
+            this.editUserName = "";
           } else {
             alert("資料庫錯誤，請稍後再試");
           }
@@ -383,7 +442,8 @@ export default {
         };
         this.$http.post(`${this.$host}/auth/deleteUser`, postData).then((res) => {
           if (res.body === "success") {
-            this.filteredUserRows.splice(index);
+            this.getAllUserData()
+            // this.filteredUserRows.splice(index);
           } else {
             alert("資料庫錯誤，請稍後再試");
           }
@@ -393,44 +453,50 @@ export default {
     deleteCase(CaseIndex) {
       if (confirm("確定要刪除這筆資料嗎?")) {
         let postData = {
-          deleteCaseCountry: this.filteredCaseRows[CaseIndex].countryName,
-          deleteCaseTime: this.filteredCaseRows[CaseIndex].time,
+          country_name: this.filteredCaseRows[CaseIndex].country_name,
+          c_date: this.printDate(this.filteredCaseRows[CaseIndex].c_date),
         };
-        this.$http.post("/deleteCase", JSON.stringify(postData)).then((res) => {
-          if (res.body === "success") {
-            this.filteredCaseRows.splice(CaseIndex);
+        this.$http.post(`${this.$host}/C_covid/deleteCountryCase`, JSON.stringify(postData)).then((res) => {
+          if (res.data.success) {
+            this.getAllCaseData()
+            // this.filteredCaseRows.splice(CaseIndex);
           } else {
             alert("資料庫錯誤，請稍後再試");
           }
         });
       }
     },
-    editCase(editItem) {
-      this.editItem = this.editItem == editItem ? -1 : editItem;
+    editCase(index,caseData) {
+      this.editItem = this.editItem == index ? -1 : index;
+      this.editCaseR = caseData.recovered
+      this.editCaseC = caseData.confirmed
+      this.editCaseD = caseData.deaths
     },
     editCaseFinish(CaseIndex) {
       if (
-        this.editCaseR == "" ||
-        this.editCaseS == "" ||
-        this.editCaseD == ""
+        this.editCaseR == null ||
+        this.editCaseC == null ||
+        this.editCaseD == null
       ) {
         alert("請不要留下空白欄位");
       } else {
         let postData = {
-          editCaseCountry: this.filteredCaseRows[CaseIndex].countryName,
-          editCaseTime: this.filteredCaseRows[CaseIndex].time,
-          editCaseR: this.editCaseR,
-          editCaseS: this.editCaseS,
-          editCaseD: this.editCaseD,
+          country_name : this.filteredCaseRows[CaseIndex].country_name,
+          c_date : this.printDate(this.filteredCaseRows[CaseIndex].c_date),
+          confirmed : this.editCaseC,
+          recovered : this.editCaseR,
+          deaths : this.editCaseD
         };
-        this.$http.post("/editCase", JSON.stringify(postData)).then((res) => {
-          if (res.body === "success") {
-            this.filteredCaseRows[CaseIndex].recover = this.editCaseR;
-            this.filteredCaseRows[CaseIndex].sick = this.editCaseS;
-            this.filteredCaseRows[CaseIndex].dead = this.editCaseD;
-            this.editCaseR = "";
-            this.editCaseS = "";
-            this.editCaseD = "";
+        this.$http.post(`${this.$host}/C_covid/updateCountryCase`, JSON.stringify(postData))
+        .then((res) => {
+          if (res.data.success) {
+            let data = res.data.data
+            this.filteredCaseRows[CaseIndex].recovered = data.recovered;
+            this.filteredCaseRows[CaseIndex].confirmed = data.confirmed;
+            this.filteredCaseRows[CaseIndex].deaths = data.deaths;
+            this.editCaseR = null;
+            this.editCaseS = null;
+            this.editCaseD = null;
             this.editItem = -1;
           } else {
             alert("資料庫錯誤，請稍後再試");
@@ -441,6 +507,21 @@ export default {
     switchCaseCountry(){
       this.switchCaseCountrys=!this.switchCaseCountrys;
       console.log(this.switchCaseCountrys);
+    },
+    editUserIdentity(userData,event,index){
+      let originData = userData
+      originData["useridentify"] = event.target.value
+      let vm = this;
+      this.$http.post(`${this.$host}/auth/updateUserName`, JSON.stringify(originData))
+        .then((res) => {
+          if (res.data.success) {
+            // this.getAllUserData()
+            vm.filteredUserRows[index]["useridentify"] = event.target.value
+            alert("修改權限完成")
+          } else {
+            alert("資料庫錯誤，請稍後再試");
+          }
+        });
     }
   },
   computed: {
@@ -481,7 +562,7 @@ export default {
       return this.countryFilter == ""
         ? this.allCaseData
         : this.allCaseData.filter(function (d) {
-            return d.countryName.toLowerCase().indexOf(countryFilter) > -1;
+            return d.country_name.toLowerCase().indexOf(countryFilter) > -1;
           });
     }
   },

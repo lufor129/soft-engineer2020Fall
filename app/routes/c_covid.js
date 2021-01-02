@@ -1,4 +1,5 @@
-var express = require("express")
+var express = require("express");
+const { result } = require("../DBconnect");
 var router = express.Router()
 const DBconnect = require("../DBconnect");
 
@@ -65,6 +66,122 @@ router.get("/world",(req,res)=>{
       res.send(error)
     })
 });
+
+router.get("/allCountryData",(req,res)=>{
+	let start = req.query.start;
+	let end = req.query.end;
+
+	var sql = "SELECT * FROM C_COVID WHERE C_DATE BETWEEN $1 AND $2 order by C_DATE";
+	DBconnect.query(sql,[start,end])
+		.then(data=>{
+			let result = {
+				"success":true,
+				"message":"成功查找",
+				"data":data
+			}
+			res.send(result)
+		})
+		.catch(error=>{
+			let result = {
+				"success":false,
+				"message":"失敗查找",
+				"error":error
+			}
+			res.send(result)
+		})
+})
+
+router.post("/updateCountryCase",(req,res)=>{
+  let c = req.body;
+  let sql = "UPDATE C_COVID SET \
+              confirmed=$1,deaths=$2,recovered=$3 \
+              WHERE country_name=$4 AND c_date=$5 RETURNING *"
+  DBconnect.query(sql,[c.confirmed,c.deaths,c.recovered,c.country_name,c.c_date])
+    .then(data=>{
+      console.log(data)
+      if(data){
+        let result = {
+          "success":true,
+          "message":"修改查找",
+          "data":data[0]
+        }
+        res.send(result)
+      }else{
+        let result = {
+          "success":false,
+          "message":"失敗修改 check PK",
+        }
+        res.send(result)
+      }
+    })
+    .catch(error=>{
+      console.log(error)
+			let result = {
+				"success":false,
+        "message":"失敗更新",
+				"error":error
+			}
+			res.send(result)
+    })
+})
+
+router.post("/deleteCountryCase",(req,res)=>{
+  let c = req.body;
+  let sql = "DELETE FROM C_COVID \
+              WHERE country_name=$1 AND c_date=$2 RETURNING *"
+  DBconnect.one(sql,[c.country_name,c.c_date])
+    .then(data=>{
+      if(data){
+        let result = {
+          "success":true,
+          "message":"刪除成功",
+          "data":data
+        }
+        res.send(result)
+      }else{
+        let result = {
+          "success":false,
+          "message":"失敗刪除",
+        }
+        res.send(result)
+      }
+    })
+    .catch(error=>{
+			let result = {
+				"success":false,
+        "message":"失敗刪除",
+				"error":error
+			}
+			res.send(result)
+    })
+})
+
+router.post("/addCountryCase",(req,res)=>{
+  let c = req.body;
+  let sql = "INSERT INTO C_COVID (c_date,country_name,confirmed,deaths,recovered) \
+                VALUES ($1,$2,$3,$4,$5) RETURNING *"
+  DBconnect.query(sql,[c.c_date,c.country_name,c.confirmed,c.deaths,c.recovered])
+    .then(data=>{
+      console.log(data)
+      if(data.length>0){
+        let result = {
+          "success":true,
+          "message":"新增成功",
+          "data":data[0]
+        }
+        res.send(result)
+      }else{
+        let result = {
+          "success":false,
+          "message":"失敗新增",
+        }
+        res.send(result)
+      }
+    })
+    .catch(error=>{
+
+    })
+})
 
 router.get("/country",(req,res)=>{
   let start = req.query.start;

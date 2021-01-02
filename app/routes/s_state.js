@@ -53,9 +53,38 @@ router.get("/all_state",(req,res)=>{
 			res.send(result)
 		})
 		.catch(error=>{
-			res.send(error)
+			let result = {
+				"success":false,
+				"message":"失敗查找",
+				"error":error
+			}
+			res.send(result)
 		})
 });
+
+router.get("/allStateData",(req,res)=>{
+	let start = req.query.start;
+	let end = req.query.end;
+
+	var sql = "SELECT * FROM S_COVID WHERE S_DATE BETWEEN $1 AND $2";
+	DBconnect.query(sql,[start,end])
+		.then(data=>{
+			let result = {
+				"success":true,
+				"message":"成功查找",
+				"data":data
+			}
+			res.send(result)
+		})
+		.catch(error=>{
+			let result = {
+				"success":false,
+				"message":"失敗查找",
+				"error":error
+			}
+			res.send(result)
+		})
+})
 
 router.post("/insertStateCase",(req,res)=>{
 	let i = req.body //insert
