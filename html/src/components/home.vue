@@ -86,8 +86,9 @@
           </div>
           <input
             style="width:400px; height:20px; text-align: center;"
-            placeholder="說話啊！"
+            placeholder="說話啊！但是只能說40個字喔"
             v-model="newMessages"
+            maxlength="40"
             @keypress.enter="newMessage()"
           />
         </div>
@@ -97,11 +98,12 @@
         <grapPie :clickData="clickCountry"></grapPie>
       </div>
       <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-      <div v-if="clickCountry">
-        <grapLine :clickData="clickCountry"></grapLine>
+      <br /><br /><br /><br /><br />
+      <div v-if="clickCountry" style="width:80%;float:right">
+        <grapLine  :clickData="clickCountry"></grapLine>
       </div>
     </div>
-    <div v-if="userCountrys.length!=0">
+    <div v-if="userCountrys.length!=0" style="width:80%;float:right">
       <grapLine :subscribes="userCountrys.length" :name="name"></grapLine>
     </div>
   </div>
@@ -293,7 +295,8 @@ export default {
   max-height: auto;
   min-height: 65%;
   width: 20%;
-  position: absolute;
+  float: left;
+  /* position: absolute; */
   top: auto;
 }
 

@@ -362,7 +362,7 @@ export default {
 .google-map {
   width: 78%;
   height: 400px;
-  left: 1%;
+  right:19%
 }
 div#barline {
   width: 80%;

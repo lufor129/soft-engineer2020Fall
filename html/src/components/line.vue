@@ -27,13 +27,12 @@ export default {
   data: function () {
     (this.chartExtend = {
       xAxis: {
-        show: false,
+        show: true,
       },
     }),
       (this.chartGrid = {
-        width: "70%",
+        width: "95%",
         height: "70%",
-        left: "25%",
       });
     return {
       dataStyle:"confirmed",
