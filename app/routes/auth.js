@@ -78,7 +78,7 @@ router.post("/register",(req,res)=>{
   sql = 'INSERT INTO MEMBER (ACCOUNT,PASSWD,NAME,activate,userIdentify) VALUES ($1,$2,$3,$4,$5) \
              ON CONFLICT(ACCOUNT) DO NOTHING RETURNING *';
 
-  DBconnect.query(sql,[account,password,name,false,"user"])
+  DBconnect.query(sql,[account,password,name,true,"user"])
     .then(data=>{
       if(data.length > 0){
         // let result={

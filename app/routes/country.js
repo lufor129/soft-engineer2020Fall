@@ -25,14 +25,14 @@ router.get("/getAllCountrys",(req,res)=>{
 
 
 router.get("/getCountry",(req,res)=>{
-  let country = req.query.country_name;
+  let country_name = req.query.country_name;
   sql = "SELECT * FROM COUNTRY WHERE COUNTRY_NAME=$1";
   DBconnect.one(sql,[country_name])
     .then(data=>{
       let result={
         "success":true,
         "message":"成功查找",
-        "country":data[0]
+        "country":data
       }
       res.send(result);
     })
@@ -103,8 +103,7 @@ router.post("/subscribeCountry",(req,res)=>{
     .catch(error=>{
       let result = {
         "success":false,
-        "message":"DB error",
-        "error":error
+        "message":"重複訂閱"
       }
       res.send(result)
     })

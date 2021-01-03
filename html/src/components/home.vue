@@ -50,7 +50,7 @@
               pageStart + countOfPage
             )"
             :key="index"
-          @dblclick="deleteMessage(index)"
+          @dblclick="deleteMessage(index+pageStart)"
           >
             <img
               style="width: 40px; height: 40px; border-radius: 10px"
@@ -213,6 +213,11 @@ export default {
       });
     },
     newMessage() {
+      this.newMessages = this.newMessages.trim()
+      if(this.newMessages.length == 0){
+        alert("請不要留言空白")
+        return 
+      }
       let postData = {
         name: this.name,
         account: "admin",

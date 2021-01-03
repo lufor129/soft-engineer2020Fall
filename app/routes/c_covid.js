@@ -1,5 +1,4 @@
 var express = require("express");
-const { result } = require("../DBconnect");
 var router = express.Router()
 const DBconnect = require("../DBconnect");
 
@@ -179,7 +178,11 @@ router.post("/addCountryCase",(req,res)=>{
       }
     })
     .catch(error=>{
-
+      let result = {
+        "success":false,
+        "message":"重複國家、時間點新增"
+      }
+      res.send(result)
     })
 })
 

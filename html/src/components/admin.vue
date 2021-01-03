@@ -183,7 +183,7 @@
               type="text"
               @keypress.enter="updateUserName(userData,index)"
             />
-            <th v-else @click="intoEditName(index)">{{ userData.name }}</th>
+            <th v-else @click="intoEditName(index,userData)">{{ userData.name }}</th>
             <th>
               <!--不能v-model 因為每列不一樣 and onchange不會觸發-->
               <select @change="editUserIdentity(userData,$event,index)">
@@ -325,12 +325,10 @@ export default {
           userIndex
         );
       }
-      /* else{
-                  alert("不要亂點^_^")
-                }*/
     },
-    intoEditName(editName) {
-      this.editUserName = editName;
+    intoEditName(index,userData) {
+      this.editUserName = index;
+      this.newName = userData.name
     },
     leftEditName(userIndex) {
       this.editUserName = "";
@@ -377,7 +375,7 @@ export default {
             // this.caseDead = "";
             // this.caseSick = "";
           } else {
-            alert("資料庫錯誤，請稍後再試");
+            alert(res.data.message);
           }
         });
       }
@@ -420,6 +418,10 @@ export default {
         });
     },
     updateUserName(originData,index) {
+      if(this.newName.trim().length == 0){
+        alert("名字不可為空白")
+        return
+      }
       let postData = originData
       postData["name"] = this.newName
       let vm = this;
