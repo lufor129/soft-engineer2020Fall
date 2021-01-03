@@ -63,6 +63,7 @@ router.get("/getUserCountry",(req,res)=>{
         let result = {
           "success":false,
           "message":"no user favorite",
+          "data":[]
         }
         res.send(result)
       }
