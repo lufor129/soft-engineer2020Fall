@@ -9,8 +9,8 @@ Vue.use(VueResource)
 Vue.http.options.emulateHTTP = true
 Vue.http.options.emulateJSON = true
 
-// Vue.prototype.$host = "https://lufor129.me/backend"
-Vue.prototype.$host = "http://localhost:3000"
+Vue.prototype.$host = "https://lufor129.me/backend"
+// Vue.prototype.$host = "http://localhost:3000"
 Vue.prototype.$imghost = "https://lufor129.me/N"
 
 /* eslint-disable no-new */
