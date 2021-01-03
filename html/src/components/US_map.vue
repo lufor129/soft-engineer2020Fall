@@ -84,7 +84,7 @@ export default {
             });
             const api = `${this.$host}/state/getAllStates`
             this.$http.get(api).then(response => {
-                vm.countrys = response.data.country
+                vm.countrys = response.data.state
                 vm.map.data.addListener("click",function(event){
                     let cooridinate = {lat:event.latLng.lat(),lng:event.latLng.lng()};
                     vm.GeoclickCountry = event.feature.getProperty("name")
@@ -130,6 +130,7 @@ export default {
             let countryData = this.countrys.filter(element=>{
                 return element["geo"] == GeoName
             })[0];
+            
             let covid_data = this.worldCovid.covid[this.value].filter(country=>{
                 return country["state_name"] == countryData.state_name
             })[0];
@@ -305,7 +306,7 @@ export default {
 .google-map {
     width: 78%;
     height: 400px;
-    right:19%
+    left:1%;
 }
 div#barline{
     width: 80%;
