@@ -57,23 +57,23 @@ router.get("/logout",(req,res)=>{
 router.post("/register",(req,res)=>{
   let account = req.body.account;
   let password = req.body.password;
-  let name;
+  let name = req.body.name;
 
-  var accountRule = /\S+@\S+\.\S+/;
-  // check email
-  if(accountRule.test(account)){
-    name = account.match(/(.+)@/)[1];
-  }else{
-    name = account;
-  }
+  // var accountRule = /\S+@\S+\.\S+/;
+  // // check email
+  // if(accountRule.test(account)){
+  //   name = account.match(/(.+)@/)[1];
+  // }else{
+  //   name = account;
+  // }
   
-  let PasswordReg = /^\w+$/
-  if(PasswordReg.test(password)==false){
-    let result = "密碼僅可為英文、數字"
-    return res.send(result)
-  }
+  // let PasswordReg = /^\w+$/
+  // if(PasswordReg.test(password)==false){
+  //   let result = "密碼僅可為英文、數字"
+  //   return res.send(result)
+  // }
 
-  console.log(name,accountRule.test(account))
+  // console.log(name,accountRule.test(account))
 
   sql = 'INSERT INTO MEMBER (ACCOUNT,PASSWD,NAME,activate,userIdentify) VALUES ($1,$2,$3,$4,$5) \
              ON CONFLICT(ACCOUNT) DO NOTHING RETURNING *';
@@ -131,10 +131,16 @@ router.post("/login",(req,res)=>{
           req.session.name = data.name;
           req.session.account = data.account;
           if(data.useridentify == "admin"){
-            let result = "admin"
+            let result = {
+              message:"admin",
+              user:data
+            }
             res.send(result)
           }else{
-            let result = "success"
+            let result = {
+              message:"success",
+              user:data
+            }
             return res.send(result);
           }
           // let result = {

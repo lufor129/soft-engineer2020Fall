@@ -176,15 +176,15 @@ export default {
       } else {
         let userData = { account: this.username, password: this.password };
         this.$http.post(`${this.$host}/auth/login`, userData).then((res) => {
-          console.log(res.data);
           if (res.data == "wrong") {
             this.tishi = "密碼錯誤";
             this.showTishi = true;
             this.password = "";
-          } else if (res.data == "admin") {
+          } else if (res.data.message == "admin") {
+            console.log(res.data.user)
             this.tishi = "登入成功 ADMIN";
             this.showTishi = true;
-            setCookie("username", this.username, 1000 * 60);
+            setCookie("username", res.data.user.name, 1000 * 60);
             setCookie("userIdentity", "admin", 1000 * 60);
             setTimeout(
               function () {
@@ -192,10 +192,10 @@ export default {
               }.bind(this),
               500
             );
-          } else if (res.data == "success") {
+          } else if (res.data.message == "success") {
             this.tishi = "登入成功";
             this.showTishi = true;
-            setCookie("username", this.username, 1000 * 60);
+            setCookie("username", res.data.user.name, 1000 * 60);
             setCookie("userIdentity", "user", 1000 * 60);
             setTimeout(
               function () {

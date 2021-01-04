@@ -276,8 +276,8 @@ export default {
       }  
     },
     deleteSCountry(index){
-        let postData = {
-        account: "admin",
+      let postData = {
+        account: this.name,
         country_name: this.bulletinCountry,
       };
       let postAPI = `${this.$host}/country/deleteSubscribeCountry`;
