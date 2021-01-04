@@ -18,6 +18,27 @@ router.get("/check",(req,res)=>{
   res.send(result);
 });
 
+router.get("/getUser",(req,res)=>{
+  let account = req.query.account
+  let sql = "SELECT * FROM MEMBER WHERE account=$1"
+  DBconnect.one(sql,[account])
+    .then(data=>{
+      let result={
+        "success":true,
+        "message":"login",
+        user:data
+      }
+      res.send(result)
+    })
+    .catch(error=>{
+      let result={
+        "success":false,
+        "message":"no account"
+      }
+      res.send(result)
+    })
+})
+
 router.get("/getSessionUser",(req,res)=>{
   if(req.session.account != undefined){
     let sql = "SELECT * FROM MEMBER WHERE account=$1"
@@ -42,6 +63,7 @@ router.get("/getSessionUser",(req,res)=>{
       "success":false,
       "message":"you havn't login"
     }
+    res.send(result)
   }
 })
 

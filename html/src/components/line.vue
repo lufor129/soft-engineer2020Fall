@@ -66,7 +66,6 @@ export default {
       });
     },
     createSubscribeLine(user){
-      console.log(this.subscribes)
       let vm = this;
       let api = `${this.$host}/C_covid/getCountrysLine?account=${user}`
       this.$http.get(api).then(response=>{

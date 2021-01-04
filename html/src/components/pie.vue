@@ -36,7 +36,6 @@ export default {
   },
   methods:{
     createPie(name,fromData){
-      console.log(name)
       if(fromData == "world"){
         var api = `${this.$host}/C_covid/getCountryPie?country_name=${name}`
       }else{

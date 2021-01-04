@@ -1,7 +1,7 @@
 <template>
   <div>
     <div id="account">
-      <h3>Hello！ {{ name }}</h3>
+      <h3>Hello！ {{ username }}</h3>
       <a v-if="nameIdentity == 'admin'" @click="toAdmins">後台管理</a
       >&ensp;&ensp;
       <a @click="quit">登出</a>
@@ -125,6 +125,7 @@ export default {
   },
   data() {
     return {
+      username:"",
       name: "",
       userComputers: "",
       userComputerList: "",
@@ -160,6 +161,7 @@ export default {
     let userIdentity = getCookie("userIdentity");
     let userAccount = { account: uname };
     this.name = uname;
+    this.getUserName(this.name);
     this.nameIdentity = userIdentity;
     this.getUserSubscribeCountry();
   },
@@ -169,6 +171,15 @@ export default {
     };
   },
   methods: {
+    getUserName(account){
+      this.$http.get(`${this.$host}/auth/getUser?account=${account}`)
+      .then(res=>{
+        this.username = res.data.user.name
+      })
+      .catch(error=>{
+        console.log(error)
+      })
+    },
     quit() {
       delCookie("username");
       delCookie("userIdentity");
@@ -276,6 +287,7 @@ export default {
       }  
     },
     deleteSCountry(index){
+      
       let postData = {
         account: this.name,
         country_name: this.bulletinCountry,

@@ -181,10 +181,9 @@ export default {
             this.showTishi = true;
             this.password = "";
           } else if (res.data.message == "admin") {
-            console.log(res.data.user)
             this.tishi = "登入成功 ADMIN";
             this.showTishi = true;
-            setCookie("username", res.data.user.name, 1000 * 60);
+            setCookie("username", this.username, 1000 * 60);
             setCookie("userIdentity", "admin", 1000 * 60);
             setTimeout(
               function () {
@@ -195,7 +194,7 @@ export default {
           } else if (res.data.message == "success") {
             this.tishi = "登入成功";
             this.showTishi = true;
-            setCookie("username", res.data.user.name, 1000 * 60);
+            setCookie("username", this.username, 1000 * 60);
             setCookie("userIdentity", "user", 1000 * 60);
             setTimeout(
               function () {
