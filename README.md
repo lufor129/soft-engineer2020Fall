@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://1.bp.blogspot.com/-QQ7Pk57fp9Q/XnLn77FlI3I/AAAAAAABX0s/PO2ZMxe0SpA_5t-43oBw6t9BPE6dG7stwCNcBGAsYHQ/s400/fight_virus_woman.png" width="250">
+  <img src="./html/src/assets/logo.png" width="250">
   <h2 align="center">新冠肺炎監測地圖</h2>
   <h4 align="center">2020Fall  軟體工程專案</h4>
   <p align="center">新冠肺炎地圖。前端Vue、後端Express、資料庫Postgres、整合Docker-compose。</p>

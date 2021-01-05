@@ -2,6 +2,7 @@
   <div>
     <div id="account">
       <h3>Hello！ {{ username }}</h3>
+      <a href="https://github.com/lufor129/soft-engineer2020Fall/blob/master/README.md#%E8%B3%87%E6%96%99%E9%9B%86%E6%8F%8F%E8%BF%B0" style="all:unset;color:black !important;">開放資料集</a>
       <a v-if="nameIdentity == 'admin'" @click="toAdmins">後台管理</a
       >&ensp;&ensp;
       <a @click="quit">登出</a>

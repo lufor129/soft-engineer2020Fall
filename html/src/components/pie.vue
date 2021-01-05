@@ -1,5 +1,9 @@
 <template>
   <div class="app-chart">
+    <select name="" id="" v-model="isPopulation">
+      <option value="noPopulation">不含總人口比例</option>
+      <option value="population">含總人口比例</option>
+    </select>
     <div id="print-content">
       <ve-pie :data="chartData" :colors="colors" :grid="chartGrid"></ve-pie>
     </div>
@@ -29,6 +33,7 @@ export default {
         ],
       },
       colors: ["#19d4ae", "#fa6e86", "#666666"],
+      isPopulation: "noPopulation"
     };
   },
   components: {
@@ -43,7 +48,11 @@ export default {
       }
       let vm = this;
       this.$http.get(api).then((response) => {
-        vm.chartData = response.data.chartData1;
+        if(vm.isPopulation == "noPopulation"){
+          vm.chartData = response.data.chartData1;
+        }else{
+          vm.chartData = response.data.chartData2;
+        }
       });
     }
   },
@@ -52,6 +61,9 @@ export default {
   },
   watch:{
     clickData:function(){
+      this.createPie(this.clickData.name,this.clickData.fromData)
+    },
+    isPopulation:function(){
       this.createPie(this.clickData.name,this.clickData.fromData)
     }
   }
